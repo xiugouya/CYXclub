@@ -477,6 +477,80 @@ header {
 }
 
 /* 联系我们 */
+
+.packages-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
+}
+
+.package-mini-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s;
+}
+
+.package-mini-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+.package-mini-card.featured {
+    border-color: var(--primary-color);
+    background: linear-gradient(180deg, rgba(249, 249, 0, 0.08) 0%, var(--card-bg) 100%);
+}
+
+.package-mini-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.package-mini-icon i {
+    font-size: 28px;
+    color: var(--dark-bg);
+}
+
+.package-mini-card h3 {
+    font-size: 22px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+}
+
+.package-mini-card .price {
+    font-size: 28px;
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.package-mini-card .price span {
+    font-size: 14px;
+    color: var(--text-gray);
+    font-weight: 400;
+}
+
+.package-mini-card ul {
+    list-style: none;
+    margin-bottom: 20px;
+}
+
+.package-mini-card ul li {
+    color: var(--text-gray);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+/* 联系我们 */
 .contact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
