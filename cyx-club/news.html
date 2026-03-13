@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全部公告 - CYX俱乐部</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .news-page {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        .back-home:hover {
+            opacity: 0.8;
+        }
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .news-item {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+        .news-item:hover {
+            border-color: var(--primary-color);
+        }
+        .news-item .news-date {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+        }
+        .news-item h3 {
+            font-size: 22px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+        .news-item p {
+            color: var(--text-gray);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .news-item .news-source {
+            font-size: 12px;
+            color: var(--text-gray);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <a href="index.html" class="logo-text">CYX</a>
+                <span class="logo-sub">俱乐部</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html#home">首页</a></li>
+                <li><a href="index.html#games">支持游戏</a></li>
+                <li><a href="index.html#services">服务项目</a></li>
+                <li><a href="services.html">服务套餐</a></li>
+                <li><a href="news.html">公告列表</a></li>
+                <li><a href="index.html#contact">联系我们</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 公告列表 -->
+    <section class="news-page section">
+        <div class="container">
+            <a href="index.html" class="back-home">
+                <i class="fas fa-arrow-left"></i> 返回首页
+            </a>
+            
+            <h2 class="section-title">全部公告</h2>
+            <p class="section-subtitle">来自 CYX俱乐部 官方微信公众号</p>
+            
+            <div class="news-list">
+                <article class="news-item">
+                    <div class="news-date">2025-12-29</div>
+                    <h3>【公告】关于公众号服务优化与推出2026迎新活动的公告</h3>
+                    <p>尊敬的CYX俱乐部会员及关注者们：</p>
+                    <p>感谢大家长期以来对CYX俱乐部的支持与陪伴。为提供更高效、更贴心的服务体验，我们近期对客服体系进行了全面升级：</p>
+                    <p><strong>客服团队扩充，沟通更便捷</strong><br>
+                    即日起，CYX俱乐部已增加专职客服人员，您只需在公众号后台直接留言，即可获得人工客服实时响应。无论是活动咨询、建议反馈还是问题求助，我们都将第一时间为您解答！</p>
+                    <p><strong>迎新2026，全新活动即将启幕</strong><br>
+                    为迎接2026年的到来，CYX俱乐部精心策划了系列主题迎新活动！</p>
+                    <p>• 限量点单 跑刀纯币108R=2026w 限额3名 (12月31日18:00开放)<br>
+                    • 随机抽奖 跑刀纯币2026k 限额3名 (本期公众号评论下1名、12月31日CYX俱乐部抖音直播间2名)<br>
+                    • CYX抖音直播间12月31日20:00开奖</p>
+                    <a href="https://mp.weixin.qq.com/s/zAwXI_lTbI2CWM-V-wds7w" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>
+                    <span class="news-source">源自CYX官方微信公众号</span>
+                </article>
+                
+                <article class="news-item">
+                    <div class="news-date">2026-02-13</div>
+                    <h3>【声明】严正声明 - 防诈骗公告</h3>
+                    <p>近期，本俱乐部接到举报：有不法分子冒用CYX俱乐部名义，诱导转账汇款，实施诈骗行为，严重损害俱乐部声誉与公众财产安全。</p>
+                    <p>对此，CYX俱乐部严正声明：</p>
+                    <p>1. 本俱乐部从未授权任何个人以俱乐部名义开展接单等活动；所有官方业务均通过俱乐部官方账号、官方渠道统一办理。<br>
+                    2. 凡以"CYX俱乐部"名义私聊要求汇款的行为均为诈骗，与本俱乐部无关。<br>
+                    3. 俱乐部已固定相关证据并向公安机关报案，将依法追究冒用者法律责任。</p>
+                    <p>防骗重要提醒：一切信息以CYX俱乐部官方账号发布为准，不私聊、不转账。涉及缴费等行为务必通过官方渠道核实真伪。如遇可疑行为，立即拒绝、保留证据并拨打110报警。</p>
+                    <a href="https://mp.weixin.qq.com/s/Rm3PlI5z5_V9hoI6GMaVpA" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>
+                    <span class="news-source">源自CYX官方微信公众号</span>
+                </article>
+                
+                <article class="news-item">
+                    <div class="news-date">2025-12-01</div>
+                    <h3>CYX俱乐部价目表</h3>
+                    <p>❌无资质❌无认证❌无实力<br>
+                    ✔️纯学生✔️纯信任✔️纯绿色</p>
+                    <p>平日直接倒闭，周末接单，黑奴价格↓↓↓</p>
+                    <a href="https://mp.weixin.qq.com/s/skYpnTUSoJT3wrsxUW17Wg" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>
+                    <span class="news-source">源自CYX官方微信公众号</span>
+                </article>
+                
+                <article class="news-item">
+                    <div class="news-date">2026-01-01</div>
+                    <h3>【祝福】CYX俱乐部祝大家新春快乐！</h3>
+                    <p>CYX俱乐部在此祝各位特种兵、召唤师、幸存者、干员、米娜桑、BanG Dreamer、「世界」居民、小伙伴、玩家、旅者、班长、伯爵、博士、搭配师、导航员、导演、队长、房东、管理员、馆主、小画家、鉴定师、监督、舰长、教授、局长、开拓者、老师、列车长、猎人、领航大人、律师、旅行者、冒险者、魔王大人、漂泊者、骑士君、守护者、骑士、人偶师、少主、设计师、绳匠、收藏家、授权者、狩月人、司辰、提督、无剑、星临者、学员、血裔、训练师、亚瑟大人、引航者、阴阳师大人、勇士、预见者、御侍、御主、指挥官、指挥使、制作人、准尉同志、传火者、组长们新春快乐！</p>
+                    <a href="https://mp.weixin.qq.com/s/HjLNCH-3ttX3ScQYEBq55A" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>
+                    <span class="news-source">源自CYX官方微信公众号</span>
+                </article>
+            </div>
+            
+            <div class="wechat-qr-notice">
+                <p><i class="fab fa-weixin"></i> 关注「CYX电竞」微信公众号，获取更多资讯</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-text">CYX</span>
+                    <span class="logo-sub">俱乐部</span>
+                </div>
+                <p class="footer-desc">专业游戏代练托管平台</p>
+                <p class="footer-copyright">© 2025 CYX俱乐部. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
