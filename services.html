@@ -192,6 +192,50 @@
             color: var(--text-gray);
             font-weight: 400;
         }
+        .price-original, .price-original * {
+            font-size: 22px !important;
+            color: #999 !important;
+            text-decoration: line-through !important;
+            margin-right: 15px !important;
+        }
+        .price-discount, .price-discount * {
+            color: #ff0000 !important;
+            font-size: 48px !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+        }
+        .activity-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .notice-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .notice-warning p {
+            color: #856404;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .notice-warning strong {
+            color: #c0392b;
+        }
         .package-features {
             list-style: none;
             margin-bottom: 30px;
@@ -338,19 +382,22 @@
                         <div class="package-icon">
                             <i class="fas fa-gem"></i>
                         </div>
-                        <h3 class="package-name">托管月卡</h3>
-                        <p class="package-price">¥68 <span>/月</span></p>
+                        <h3 class="package-name">白金月卡</h3>
+                        <div class="activity-tag">活动至4月30日结束</div>
+                        <p class="package-price">
+                            <span class="price-original">¥68</span>
+                            <span class="price-discount">¥58<span>/月</span></span>
+                        </p>
                     </div>
                     <ul class="package-features">
                         <li><i class="fas fa-check"></i> 任意单款游戏</li>
-                        <li><i class="fas fa-check"></i> 每日任务全清</li>
-                        <li><i class="fas fa-check"></i> 活动限时参与</li>
-                        <li><i class="fas fa-check"></i> 资源定期收集</li>
-                        <li><i class="fas fa-check"></i> 体力系统全包</li>
+                        <li><i class="fas fa-check"></i> 体力 · 委托 · 活动</li>
+                        <li><i class="fas fa-check"></i> 周本 · 派遣 · 前瞻</li>
+                        <li><i class="fas fa-check"></i> 高难本全程托管</li>
                         <li><i class="fas fa-check"></i> 进度周报发送</li>
                         <li><i class="fas fa-check"></i> 7×12专属客服</li>
                     </ul>
-                    <a href="javascript:void(0)" onclick="openPayment('¥68', '托管月卡')" class="package-btn primary">立即支付</a>
+                    <a href="javascript:void(0)" onclick="openPayment('¥58', '白金月卡')" class="package-btn primary">立即支付</a>
                 </article>
 
                 <!-- 至尊月托 -->
@@ -359,22 +406,32 @@
                         <div class="package-icon">
                             <i class="fas fa-crown"></i>
                         </div>
-                        <h3 class="package-name">至尊月托</h3>
-                        <p class="package-price">¥168 <span>/月</span></p>
+                        <h3 class="package-name">至尊月卡</h3>
+                        <div class="activity-tag">活动至4月30日结束</div>
+                        <p class="package-price">
+                            <span class="price-original">¥158</span>
+                            <span class="price-discount">¥108<span>/月</span></span>
+                        </p>
                     </div>
                     <ul class="package-features">
-                        <li><i class="fas fa-check"></i> 任意五款游戏</li>
-                        <li><i class="fas fa-check"></i> 每日任务全清</li>
-                        <li><i class="fas fa-check"></i> 活动限时参与</li>
-                        <li><i class="fas fa-check"></i> 资源定期收集</li>
-                        <li><i class="fas fa-check"></i> 体力系统全包</li>
+                        <li><i class="fas fa-check"></i> 任意三款游戏</li>
+                        <li><i class="fas fa-check"></i> 体力 · 委托 · 活动</li>
+                        <li><i class="fas fa-check"></i> 周本 · 派遣 · 前瞻</li>
+                        <li><i class="fas fa-check"></i> 高难本全程托管</li>
                         <li><i class="fas fa-check"></i> 进度周报发送</li>
                         <li><i class="fas fa-check"></i> 7×12专属客服</li>
                         <li><i class="fas fa-check"></i> 优先响应通道</li>
                         <li><i class="fas fa-check"></i> 定制化代练计划</li>
                     </ul>
-                    <a href="javascript:void(0)" onclick="openPayment('¥168', '至尊月托')" class="package-btn primary">立即支付</a>
+                    <a href="javascript:void(0)" onclick="openPayment('¥108', '至尊月卡')" class="package-btn primary">立即支付</a>
                 </article>
+            </div>
+
+            <!-- 警告提示 -->
+            <div class="notice-warning">
+                <p><i class="fas fa-exclamation-triangle"></i> <strong>温馨提示</strong></p>
+                <p>⚠️ <strong>未成年人禁止下单</strong></p>
+                <p>📦 因虚拟网络商品特殊性，非特殊情况不予退款</p>
             </div>
 
             <!-- 服务标签 -->
