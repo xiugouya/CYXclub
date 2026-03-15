@@ -133,8 +133,7 @@
     <!-- 社区头部 -->
     <div class="community-header">
         <h1>💬 CYX 社区</h1>
-        <p>基于 GitHub Discussions 的留言系统</p>
-        <div class="user-info" id="userInfo"></div>
+        <p>基于 GitHub Discussions 的留言系统 · <a href="https://github.com/signup" style="color: #ffd700;">注册 GitHub</a> 后即可评论</p>
     </div>
 
     <!-- 介绍卡片 -->
@@ -190,41 +189,7 @@
     </footer>
 
     <script>
-        // 检查登录状态
-        function checkLogin() {
-            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-            const username = sessionStorage.getItem('username');
-            const userInfo = document.getElementById('userInfo');
-
-            if (isLoggedIn === 'true' && username) {
-                userInfo.innerHTML = `
-                    <div class="user-avatar">${username.charAt(0).toUpperCase()}</div>
-                    <div class="user-details">
-                        <div class="user-name">${username}</div>
-                    </div>
-                    <button class="logout-btn" onclick="logout()">退出登录</button>
-                `;
-            } else {
-                userInfo.innerHTML = `
-                    <div class="user-avatar">访客</div>
-                    <div class="user-details">
-                        <div class="user-name">游客</div>
-                    </div>
-                    <a href="login.html" class="login-btn">登录网站</a>
-                `;
-            }
-        }
-
-        // 退出登录
-        function logout() {
-            sessionStorage.removeItem('isLoggedIn');
-            sessionStorage.removeItem('username');
-            sessionStorage.removeItem('loginTime');
-            window.location.href = 'community.html';
-        }
-
-        // 初始化
-        checkLogin();
+        
     </script>
 </body>
 </html>
