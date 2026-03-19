@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全部公告 - CYX俱乐部</title>
+    <title>公告列表 - CYX俱乐部</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -14,49 +14,267 @@
         .back-home {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: var(--primary-color);
             margin-bottom: 40px;
             font-weight: 500;
-            transition: opacity 0.3s;
+            transition: all 0.3s;
+            font-size: 14px;
         }
         .back-home:hover {
             opacity: 0.8;
+            gap: 12px;
         }
+        .back-home i {
+            transition: transform 0.3s;
+        }
+        .back-home:hover i {
+            transform: translateX(-4px);
+        }
+
+        /* 分类切换 */
+        .news-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+            justify-content: center;
+        }
+        .news-tab {
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-gray);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .news-tab i {
+            font-size: 13px;
+            transition: transform 0.3s;
+        }
+        .news-tab:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .news-tab.active {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border-color: var(--primary-color);
+            font-weight: 700;
+            box-shadow: 0 6px 25px rgba(249, 249, 0, 0.35);
+        }
+        .news-tab .tab-count {
+            background: rgba(255,255,255,0.15);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+        .news-tab.active .tab-count {
+            background: rgba(0,0,0,0.15);
+        }
+
+        /* 分类区块 */
+        .news-category {
+            margin-bottom: 70px;
+        }
+        .news-category:last-child {
+            margin-bottom: 0;
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .category-icon.announce {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .category-icon.greeting {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+        .category-icon.update {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+        .category-info h3 {
+            font-size: 20px;
+            color: var(--text-light);
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .category-info p {
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+        .category-count {
+            margin-left: auto;
+            color: var(--primary-color);
+            font-size: 28px;
+            font-weight: 900;
+            opacity: 0.5;
+        }
+
+        /* 公告列表 */
         .news-list {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px;
         }
         .news-item {
             background: var(--card-bg);
-            border-radius: 20px;
-            padding: 40px;
+            border-radius: 18px;
+            padding: 30px 35px;
             border: 1px solid var(--border-color);
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .news-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary-color);
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .news-item:hover {
             border-color: var(--primary-color);
+            transform: translateX(6px);
+            box-shadow: 0 12px 40px rgba(249, 249, 0, 0.1);
         }
-        .news-item .news-date {
-            font-size: 14px;
-            color: var(--text-gray);
-            margin-bottom: 10px;
+        .news-item:hover::before {
+            transform: scaleY(1);
+        }
+        .news-item-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 12px;
         }
         .news-item h3 {
-            font-size: 22px;
+            font-size: 18px;
             color: var(--text-light);
-            margin-bottom: 15px;
+            font-weight: 600;
+            line-height: 1.5;
+            flex: 1;
+            transition: color 0.3s;
+        }
+        .news-item:hover h3 {
+            color: var(--primary-color);
+        }
+        .news-item .news-date {
+            font-size: 13px;
+            color: var(--text-gray);
+            white-space: nowrap;
+            padding-top: 3px;
         }
         .news-item p {
             color: var(--text-gray);
-            line-height: 1.8;
-            margin-bottom: 15px;
+            line-height: 1.75;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .news-item-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
         }
         .news-item .news-source {
             font-size: 12px;
             color: var(--text-gray);
             font-style: italic;
+            opacity: 0.7;
+        }
+        .news-item .news-link {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .news-item .news-link:hover {
+            gap: 12px;
+        }
+        .news-item .news-link i {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        .news-item .news-link:hover i {
+            transform: translateX(3px);
+        }
+
+        /* 空状态 */
+        .news-empty {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-gray);
+        }
+        .news-empty i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        .news-empty p {
+            font-size: 16px;
+        }
+
+        /* 展开/收起 */
+        .news-item.expanded p {
+            -webkit-line-clamp: unset;
+            overflow: visible;
+        }
+
+        @media (max-width: 600px) {
+            .news-item {
+                padding: 20px;
+            }
+            .news-item-header {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .category-count {
+                display: none;
+            }
+            .news-tabs {
+                gap: 8px;
+            }
+            .news-tab {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -73,7 +291,7 @@
                 <li><a href="index.html#games">支持游戏</a></li>
                 <li><a href="index.html#services">服务项目</a></li>
                 <li><a href="services.html">套餐购买</a></li>
-                <li><a href="news.html">公告列表</a></li>
+                <li><a href="news.html" class="active">公告列表</a></li>
                 <li><a href="community.html">社区</a></li>
                 <li><a href="index.html#contact">联系我们</a></li>
             </ul>
@@ -92,59 +310,83 @@
                 <i class="fas fa-arrow-left"></i> 返回首页
             </a>
             
-            <h2 class="section-title">全部公告</h2>
+            <h2 class="section-title">公告列表</h2>
             <p class="section-subtitle">来自 CYX俱乐部 官方微信公众号</p>
             
-            <div class="news-list">
-                <article class="news-item">
-                    <div class="news-date">2025-12-29</div>
-                    <h3>【公告】关于公众号服务优化与推出2026迎新活动的公告</h3>
-                    <p>尊敬的CYX俱乐部会员及关注者们：</p>
-                    <p>感谢大家长期以来对CYX俱乐部的支持与陪伴。为提供更高效、更贴心的服务体验，我们近期对客服体系进行了全面升级：</p>
-                    <p><strong>客服团队扩充，沟通更便捷</strong><br>
-                    即日起，CYX俱乐部已增加专职客服人员，您只需在公众号后台直接留言，即可获得人工客服实时响应。无论是活动咨询、建议反馈还是问题求助，我们都将第一时间为您解答！</p>
-                    <p><strong>迎新2026，全新活动即将启幕</strong><br>
-                    为迎接2026年的到来，CYX俱乐部精心策划了系列主题迎新活动！</p>
-                    <p>• 限量点单 跑刀纯币108R=2026w 限额3名 (12月31日18:00开放)<br>
-                    • 随机抽奖 跑刀纯币2026k 限额3名 (本期公众号评论下1名、12月31日CYX俱乐部抖音直播间2名)<br>
-                    • CYX抖音直播间12月31日20:00开奖</p>
-                    <a href="https://mp.weixin.qq.com/s/zAwXI_lTbI2CWM-V-wds7w" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>
-                    <span class="news-source">源自CYX官方微信公众号</span>
-                </article>
-                
-                <article class="news-item">
-                    <div class="news-date">2026-02-13</div>
-                    <h3>【声明】严正声明 - 防诈骗公告</h3>
-                    <p>近期，本俱乐部接到举报：有不法分子冒用CYX俱乐部名义，诱导转账汇款，实施诈骗行为，严重损害俱乐部声誉与公众财产安全。</p>
-                    <p>对此，CYX俱乐部严正声明：</p>
-                    <p>1. 本俱乐部从未授权任何个人以俱乐部名义开展接单等活动；所有官方业务均通过俱乐部官方账号、官方渠道统一办理。<br>
-                    2. 凡以"CYX俱乐部"名义私聊要求汇款的行为均为诈骗，与本俱乐部无关。<br>
-                    3. 俱乐部已固定相关证据并向公安机关报案，将依法追究冒用者法律责任。</p>
-                    <p>防骗重要提醒：一切信息以CYX俱乐部官方账号发布为准，不私聊、不转账。涉及缴费等行为务必通过官方渠道核实真伪。如遇可疑行为，立即拒绝、保留证据并拨打110报警。</p>
-                    <a href="https://mp.weixin.qq.com/s/Rm3PlI5z5_V9hoI6GMaVpA" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>
-                    <span class="news-source">源自CYX官方微信公众号</span>
-                </article>
-                
-                <article class="news-item">
-                    <div class="news-date">2025-12-01</div>
-                    <h3>CYX俱乐部价目表</h3>
-                    <p>❌无资质❌无认证❌无实力<br>
-                    ✔️纯学生✔️纯信任✔️纯绿色</p>
-                    <p>平日直接倒闭，周末接单，黑奴价格↓↓↓</p>
-                    <a href="https://mp.weixin.qq.com/s/skYpnTUSoJT3wrsxUW17Wg" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>
-                    <span class="news-source">源自CYX官方微信公众号</span>
-                </article>
-                
-                <article class="news-item">
-                    <div class="news-date">2026-01-01</div>
-                    <h3>【祝福】CYX俱乐部祝大家新春快乐！</h3>
-                    <p>CYX俱乐部在此祝各位特种兵、召唤师、幸存者、干员、米娜桑、BanG Dreamer、「世界」居民、小伙伴、玩家、旅者、班长、伯爵、博士、搭配师、导航员、导演、队长、房东、管理员、馆主、小画家、鉴定师、监督、舰长、教授、局长、开拓者、老师、列车长、猎人、领航大人、律师、旅行者、冒险者、魔王大人、漂泊者、骑士君、守护者、骑士、人偶师、少主、设计师、绳匠、收藏家、授权者、狩月人、司辰、提督、无剑、星临者、学员、血裔、训练师、亚瑟大人、引航者、阴阳师大人、勇士、预见者、御侍、御主、指挥官、指挥使、制作人、准尉同志、传火者、组长们新春快乐！</p>
-                    <a href="https://mp.weixin.qq.com/s/HjLNCH-3ttX3ScQYEBq55A" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>
-                    <span class="news-source">源自CYX官方微信公众号</span>
-                </article>
+            <!-- 分类切换 -->
+            <div class="news-tabs">
+                <button class="news-tab active" data-category="all">
+                    <i class="fas fa-border-all"></i>
+                    全部
+                    <span class="tab-count">5</span>
+                </button>
+                <button class="news-tab" data-category="announce">
+                    <i class="fas fa-bullhorn"></i>
+                    官方公告
+                    <span class="tab-count">2</span>
+                </button>
+                <button class="news-tab" data-category="activity">
+                    <i class="fas fa-bolt"></i>
+                    活动快报
+                    <span class="tab-count">2</span>
+                </button>
+                <button class="news-tab" data-category="maintain">
+                    <i class="fas fa-wrench"></i>
+                    网站维护
+                    <span class="tab-count">1</span>
+                </button>
+            </div>
+
+            <!-- 全部公告 -->
+            <div class="news-category" data-category="all">
+                <div class="news-list">
+                    <p class="news-loading" style="color:#888;text-align:center;padding:40px;">加载中...</p>
+                </div>
+            </div>
+
+            <!-- 按分类分区显示 -->
+            <div class="news-category" data-category="announce" style="display:none">
+                <div class="category-header">
+                    <div class="category-icon announce"><i class="fas fa-bullhorn"></i></div>
+                    <div class="category-info">
+                        <h3>官方公告</h3>
+                        <p>来自 CYX俱乐部 官方的重要通知与声明</p>
+                    </div>
+                    <span class="category-count">02</span>
+                </div>
+                <div class="news-list" id="list-announce"></div>
+            </div>
+
+            <div class="news-category" data-category="activity" style="display:none">
+                <div class="category-header">
+                    <div class="category-icon greeting"><i class="fas fa-bolt"></i></div>
+                    <div class="category-info">
+                        <h3>活动快报</h3>
+                        <p>节日活动、限时福利与优惠资讯</p>
+                    </div>
+                    <span class="category-count">02</span>
+                </div>
+                <div class="news-list" id="list-activity"></div>
+            </div>
+
+            <div class="news-category" data-category="maintain" style="display:none">
+                <div class="category-header">
+                    <div class="category-icon update"><i class="fas fa-wrench"></i></div>
+                    <div class="category-info">
+                        <h3>网站维护</h3>
+                        <p>官网功能更新与版本动态记录</p>
+                    </div>
+                    <span class="category-count">01</span>
+                </div>
+                <div class="news-list" id="list-maintain"></div>
+            </div>
+
+            <div class="news-empty" id="newsEmpty" style="display:none">
+                <i class="fas fa-inbox"></i>
+                <p>该分类暂无公告</p>
             </div>
             
-            <div class="wechat-qr-notice">
+            <div class="wechat-qr-notice" style="margin-top: 60px;">
                 <p><i class="fab fa-weixin"></i> 关注「CYX电竞」微信公众号，获取更多资讯</p>
             </div>
         </div>
@@ -165,5 +407,158 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        const API_URL = 'https://cyx-news.3604596288.workers.dev/';
+
+        const CATEGORY_MAP = {
+            announce: '官方公告',
+            activity: '活动快报',
+            maintain: '网站维护'
+        };
+
+        const CATEGORY_ICONS = {
+            announce: 'bullhorn',
+            activity: 'bolt',
+            maintain: 'wrench'
+        };
+
+        // 构建文章 HTML
+        function buildArticleHTML(item) {
+            const linkHTML = item.url && item.url !== '#'
+                ? `<a href="${item.url}" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>`
+                : '';
+            const sourceText = item.source || 'CYX俱乐部官方';
+            return `
+                <article class="news-item">
+                    <div class="news-item-header">
+                        <h3>${item.title}</h3>
+                        <span class="news-date">${item.date}</span>
+                    </div>
+                    <p>${item.summary}</p>
+                    <div class="news-item-footer">
+                        <span class="news-source">${sourceText}</span>
+                        ${linkHTML}
+                    </div>
+                </article>`;
+        }
+
+        // 按分类分组文章
+        function groupByCategory(news) {
+            const groups = { announce: [], activity: [], maintain: [] };
+            news.forEach(item => {
+                const cat = item.category || 'announce';
+                if (groups[cat]) groups[cat].push(item);
+            });
+            return groups;
+        }
+
+        // 渲染文章列表
+        function renderNews(news) {
+            const allList = document.querySelector('[data-category="all"] .news-list');
+            const grouped = groupByCategory(news);
+
+            // 渲染"全部"
+            allList.innerHTML = news.map(buildArticleHTML).join('');
+
+            // 渲染各分类
+            Object.keys(grouped).forEach(cat => {
+                const listEl = document.getElementById('list-' + cat);
+                if (listEl) {
+                    listEl.innerHTML = grouped[cat].map(buildArticleHTML).join('');
+                }
+            });
+
+            // 更新各分类数量
+            const counts = {
+                all: news.length,
+                announce: grouped.announce.length,
+                activity: grouped.activity.length,
+                maintain: grouped.maintain.length
+            };
+            document.querySelectorAll('.news-tab').forEach(tab => {
+                const cat = tab.dataset.category;
+                const countEl = tab.querySelector('.tab-count');
+                if (countEl && counts[cat] !== undefined) {
+                    countEl.textContent = counts[cat];
+                }
+            });
+
+            // 触发动画
+            document.querySelectorAll('.news-item').forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = `opacity 0.5s ease ${(i % 5) * 80}ms, transform 0.5s ease ${(i % 5) * 80}ms`;
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 50);
+            });
+        }
+
+        // 显示加载状态
+        function showLoading() {
+            document.querySelectorAll('.news-list').forEach(list => {
+                list.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">加载中...</p>';
+            });
+        }
+
+        // 显示错误
+        function showError() {
+            document.querySelectorAll('.news-list').forEach(list => {
+                list.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">公告加载失败，请刷新重试</p>';
+            });
+        }
+
+        // 分类切换
+        const tabs = document.querySelectorAll('.news-tab');
+        const categories = document.querySelectorAll('.news-category');
+        const emptyState = document.getElementById('newsEmpty');
+
+        function setActiveTab(category) {
+            tabs.forEach(t => t.classList.remove('active'));
+            const targetTab = document.querySelector(`.news-tab[data-category="${category}"]`);
+            if (targetTab) targetTab.classList.add('active');
+
+            categories.forEach(cat => {
+                if (cat.dataset.category === 'all') {
+                    cat.style.display = category === 'all' ? 'block' : 'none';
+                } else {
+                    cat.style.display = cat.dataset.category === category ? 'block' : 'none';
+                }
+            });
+
+            const hasContent = category === 'all'
+                || document.querySelector(`#list-${category}`)?.children.length > 0;
+            emptyState.style.display = hasContent ? 'none' : 'block';
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => setActiveTab(tab.dataset.category));
+        });
+
+        // 从 Cloudflare Worker 获取公告
+        async function loadNews() {
+            showLoading();
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error('API error');
+                const news = await res.json();
+                renderNews(news);
+            } catch (e) {
+                console.warn('公告加载失败，使用内置数据:', e);
+                showError();
+                // 尝试加载内置数据
+                try {
+                    const res2 = await fetch(API_URL + 'default');
+                    const news = await res2.json();
+                    renderNews(news);
+                } catch (e2) {
+                    showError();
+                }
+            }
+        }
+
+        loadNews();
+    </script>
 </body>
 </html>

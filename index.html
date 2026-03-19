@@ -43,7 +43,12 @@
                 <a href="#contact" class="btn btn-secondary">联系我们</a>
             </div>
         </div>
-        <div class="hero-decoration"></div>
+        <!-- 旋转圆环装饰 -->
+        <div class="hero-rings">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+        </div>
     </section>
 
     <!-- 支持游戏 -->
@@ -87,6 +92,11 @@
                     <h3>无畏契约</h3>
                     <p>Valorant</p>
                 </div>
+                <a href="#contact" class="game-card more-games">
+                    <div class="game-icon"><i class="fas fa-plus"></i></div>
+                    <h3>更多游戏</h3>
+                    <p>联系客服咨询</p>
+                </a>
             </div>
         </div>
     </section>
@@ -191,28 +201,8 @@
         <div class="container">
             <h2 class="section-title">最新消息</h2>
             <p class="section-subtitle">来自 CYX俱乐部 官方微信公众号</p>
-            <div class="news-grid">
-                <article class="news-card">
-                    <div class="news-date">2025-12-29</div>
-                    <h3>【公告】关于公众号服务优化与推出2026迎新活动的公告</h3>
-                    <p>为提供更高效、更贴心的服务体验，CYX俱乐部对客服体系进行了全面升级！客服团队扩充，您只需在公众号后台直接留言，即可获得人工客服实时响应。同时推出2026迎新活动：限量点单跑刀纯币108R=2026w限额3名，随机抽奖跑刀纯币2026k限额3名...</p>
-                    <a href="https://mp.weixin.qq.com/s/zAwXI_lTbI2CWM-V-wds7w" target="_blank" class="news-link">阅读全文 <i class="fas fa-arrow-right"></i></a>
-                    <span class="news-source">源自CYX官方微信公众号</span>
-                </article>
-                <article class="news-card">
-                    <div class="news-date">2026-02-13</div>
-                    <h3>【声明】严正声明 - 防诈骗公告</h3>
-                    <p>近期有不法分子冒用CYX俱乐部名义实施诈骗行为。CYX俱乐部严正声明：本俱乐部从未授权任何个人以俱乐部名义开展接单等活动；所有官方业务均通过俱乐部官方账号、官方渠道统一办理。凡以"CYX俱乐部"名义私聊要求汇款的行为均为诈骗...</p>
-                    <a href="https://mp.weixin.qq.com/s/Rm3PlI5z5_V9hoI6GMaVpA" target="_blank" class="news-link">阅读全文 <i class="fas fa-arrow-right"></i></a>
-                    <span class="news-source">源自CYX官方微信公众号</span>
-                </article>
-                <article class="news-card">
-                    <div class="news-date">2025-12-01</div>
-                    <h3>CYX俱乐部价目表</h3>
-                    <p>❌无资质❌无认证❌无实力 ✔️纯学生✔️纯信任✔️纯绿色<br>平日直接倒闭，周末接单，黑奴价格↓↓↓</p>
-                    <a href="https://mp.weixin.qq.com/s/skYpnTUSoJT3wrsxUW17Wg" target="_blank" class="news-link">阅读全文 <i class="fas fa-arrow-right"></i></a>
-                    <span class="news-source">源自CYX官方微信公众号</span>
-                </article>
+            <div class="news-grid" id="homeNewsGrid">
+                <p style="color:#888;text-align:center;padding:40px;grid-column:1/-1;">加载中...</p>
             </div>
             <div class="view-all-news">
                 <a href="news.html" class="btn btn-secondary">查看全部公告 <i class="fas fa-angle-double-right"></i></a>
@@ -250,7 +240,6 @@
                     <p>fwCYXclub</p>
                 </div>
             </div>
-            <div class="contact-notice">
         </div>
     </section>
 
@@ -269,5 +258,27 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // 首页公告动态加载
+        (async function() {
+            const grid = document.getElementById('homeNewsGrid');
+            const HOME_API = 'https://cyx-news.3604596288.workers.dev/';
+            try {
+                const res = await fetch(HOME_API);
+                const news = await res.json();
+                const latest3 = news.slice(0, 3);
+                grid.innerHTML = latest3.map(item => `
+                    <article class="news-card">
+                        <div class="news-date">${item.date}</div>
+                        <h3>${item.title}</h3>
+                        <p>${item.summary}</p>
+                        <a href="${item.url || 'news.html'}" target="_blank" class="news-link">阅读全文 <i class="fas fa-arrow-right"></i></a>
+                        <span class="news-source">${item.source || 'CYX俱乐部'}</span>
+                    </article>`).join('');
+            } catch (e) {
+                grid.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">公告加载失败</p>';
+            }
+        })();
+    </script>
 </body>
 </html>
