@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CYX俱乐部官方公告列表，包括官方通知、活动快报及网站更新动态。">
+    <meta property="og:title" content="公告列表 - CYX俱乐部">
+    <meta property="og:description" content="官方公告、活动快报、网站维护通知。">
+    <meta property="og:type" content="website">
     <title>公告列表 - CYX俱乐部</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -386,7 +390,14 @@
                 <p>该分类暂无公告</p>
             </div>
             
-            <div class="wechat-qr-notice" style="margin-top: 60px;">
+            <!-- 公告数据来源提示（静默降级时显示） -->
+            <div class="news-api-notice" id="newsApiNotice" style="display:none; text-align:center; margin-top: 30px; padding: 12px 20px; background: rgba(249,249,0,0.1); border: 1px solid rgba(249,249,0,0.3); border-radius: 10px;">
+                <p style="color: var(--primary-color); font-size: 13px;"><i class="fas fa-info-circle"></i> 当前显示内置公告数据，
+                    <a href="news.html" onclick="location.reload()" style="color: var(--primary-color); text-decoration: underline; cursor: pointer;">刷新页面</a> 尝试重新加载最新公告
+                </p>
+            </div>
+
+            <div class="wechat-qr-notice" style="margin-top: 30px;">
                 <p><i class="fab fa-weixin"></i> 关注「CYX电竞」微信公众号，获取更多资讯</p>
             </div>
         </div>
@@ -401,14 +412,62 @@
                     <span class="logo-sub">俱乐部</span>
                 </div>
                 <p class="footer-desc">专业游戏代练托管平台</p>
-                <p class="footer-copyright">© 2025 CYX俱乐部. All rights reserved.</p>
+                <p class="footer-copyright">© 2026 CYX俱乐部. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script src="script.js"></script>
     <script>
-        const API_URL = 'https://cyx-news.3604596288.workers.dev/';
+        // ====== 公告配置 ======
+        // 在 https://jsonbin.io 创建 free bin，把你的 bin URL 填在这里
+        // 格式：https://api.jsonbin.io/v3/b/YOUR_BIN_ID/latest
+        // 不填或访问失败时自动降级使用 DEFAULT_NEWS
+        const JSONBIN_URL = 'https://gist.githubusercontent.com/xiugouya/30f1b2c21fb885197712dadcdb040aec/raw/news.json';
+
+        // 内嵌默认公告（API 不可用时降级显示）
+        const DEFAULT_NEWS = [
+            {
+                title: 'CYX俱乐部 正式上线运营',
+                date: '2025-01-01',
+                summary: 'CYX俱乐部专注于游戏代练托管服务，支持原神、崩铁、绝区零等多款热门游戏，专业团队为您保驾护航。',
+                category: 'announce',
+                url: '#',
+                source: 'CYX俱乐部官方'
+            },
+            {
+                title: '新春限时优惠活动开启',
+                date: '2025-01-20',
+                summary: '春节期间推出托管月卡限时折扣，至尊月托立减30元，优惠不容错过！',
+                category: 'activity',
+                url: '#',
+                source: 'CYX俱乐部官方'
+            },
+            {
+                title: '网站全新改版上线',
+                date: '2025-02-15',
+                summary: '官网全新升级改版，优化用户体验，服务项目一目了然，下单更便捷。',
+                category: 'maintain',
+                url: '#',
+                source: 'CYX俱乐部官方'
+            },
+            {
+                title: '新增支持游戏：王者荣耀、无畏契约',
+                date: '2025-03-01',
+                summary: '应广大玩家需求，现新增王者荣耀代练及无畏契约上分服务，欢迎咨询客服。',
+                category: 'announce',
+                url: '#',
+                source: 'CYX俱乐部官方'
+            },
+            {
+                title: '五一劳动节福利放送',
+                date: '2025-04-25',
+                summary: '五一假期期间下单即可享受满减优惠，托管服务全部88折，代练订单满100元减15元。',
+                category: 'activity',
+                url: '#',
+                source: 'CYX俱乐部官方'
+            }
+        ];
 
         const CATEGORY_MAP = {
             announce: '官方公告',
@@ -422,7 +481,6 @@
             maintain: 'wrench'
         };
 
-        // 构建文章 HTML
         function buildArticleHTML(item) {
             const linkHTML = item.url && item.url !== '#'
                 ? `<a href="${item.url}" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>`
@@ -442,7 +500,6 @@
                 </article>`;
         }
 
-        // 按分类分组文章
         function groupByCategory(news) {
             const groups = { announce: [], activity: [], maintain: [] };
             news.forEach(item => {
@@ -452,15 +509,12 @@
             return groups;
         }
 
-        // 渲染文章列表
         function renderNews(news) {
             const allList = document.querySelector('[data-category="all"] .news-list');
             const grouped = groupByCategory(news);
 
-            // 渲染"全部"
             allList.innerHTML = news.map(buildArticleHTML).join('');
 
-            // 渲染各分类
             Object.keys(grouped).forEach(cat => {
                 const listEl = document.getElementById('list-' + cat);
                 if (listEl) {
@@ -468,7 +522,6 @@
                 }
             });
 
-            // 更新各分类数量
             const counts = {
                 all: news.length,
                 announce: grouped.announce.length,
@@ -483,7 +536,6 @@
                 }
             });
 
-            // 触发动画
             document.querySelectorAll('.news-item').forEach((el, i) => {
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(20px)';
@@ -495,17 +547,9 @@
             });
         }
 
-        // 显示加载状态
         function showLoading() {
             document.querySelectorAll('.news-list').forEach(list => {
                 list.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">加载中...</p>';
-            });
-        }
-
-        // 显示错误
-        function showError() {
-            document.querySelectorAll('.news-list').forEach(list => {
-                list.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">公告加载失败，请刷新重试</p>';
             });
         }
 
@@ -536,25 +580,36 @@
             tab.addEventListener('click', () => setActiveTab(tab.dataset.category));
         });
 
-        // 从 Cloudflare Worker 获取公告
+        // 加载公告：优先 JSONBin，失败则降级
         async function loadNews() {
             showLoading();
-            try {
-                const res = await fetch(API_URL);
-                if (!res.ok) throw new Error('API error');
-                const news = await res.json();
-                renderNews(news);
-            } catch (e) {
-                console.warn('公告加载失败，使用内置数据:', e);
-                showError();
-                // 尝试加载内置数据
+
+            // 有 JSONBin URL 时优先请求
+            let usedFallback = false;
+
+            if (JSONBIN_URL) {
                 try {
-                    const res2 = await fetch(API_URL + 'default');
-                    const news = await res2.json();
-                    renderNews(news);
-                } catch (e2) {
-                    showError();
+                    const res = await fetch(JSONBIN_URL);
+                    if (!res.ok) throw new Error('bin error');
+                    const json = await res.json();
+                    // JSONBin 返回格式：{ record: [...] } 或直接数组
+                    const news = json.record || json;
+                    if (Array.isArray(news) && news.length > 0) {
+                        renderNews(news);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('JSONBin 不可用，降级使用内置数据');
+                    usedFallback = true;
                 }
+            } else {
+                usedFallback = true;
+            }
+
+            // 降级显示内置数据
+            renderNews(DEFAULT_NEWS);
+            if (usedFallback) {
+                document.getElementById('newsApiNotice').style.display = 'block';
             }
         }
 
