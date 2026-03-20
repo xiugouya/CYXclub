@@ -278,6 +278,8 @@
 
     <script src="script.js"></script>
     <script>
+    var GIST_RAW_URL = 'https://gist.githubusercontent.com/xiugouya/30f1b2c21fb885197712dadcdb040aec/raw/cyxclub-counter.json';
+
     function popNum(el) {
       el.classList.remove('updating');
       void el.offsetWidth;
@@ -285,6 +287,7 @@
     }
 
     async function updateCounter() {
+      // 走 Netlify Function 触发计数（带防抖：每 30 秒最多写一次 Gist）
       try {
         const res = await fetch("https://www.cyxclub.top/.netlify/functions/counter");
         const data = await res.json();
@@ -297,12 +300,20 @@
         if (prevTotal !== totalEl.textContent) popNum(totalEl);
         if (prevOnline !== onlineEl.textContent) popNum(onlineEl);
       } catch (e) {
-        document.getElementById("cyx-total").textContent = "—";
-        document.getElementById("cyx-online").textContent = "—";
+        // 网络异常则尝试直接从 Gist 读（展示当前最新值，不触发计数）
+        try {
+          const res = await fetch(GIST_RAW_URL + "?t=" + Date.now());
+          const data = await res.json();
+          document.getElementById("cyx-total").textContent = (data.count || 0).toLocaleString();
+          document.getElementById("cyx-online").textContent = "?";
+        } catch (e2) {
+          document.getElementById("cyx-total").textContent = "—";
+          document.getElementById("cyx-online").textContent = "—";
+        }
       }
     }
     updateCounter();
-    setInterval(updateCounter, 10000);
+    setInterval(updateCounter, 60000); // 每 60 秒刷新
     </script>
     <script>
         // 国内可访问的公告数据（API 失败时降级使用）
