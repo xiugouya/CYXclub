@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- 顶部导航 -->
@@ -47,6 +49,17 @@
             <div class="hero-buttons">
                 <a href="services.html" class="btn btn-primary">立即下单</a>
                 <a href="#contact" class="btn btn-secondary">联系我们</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-pill">
+                    <div class="stat-dot stat-dot-total"></div>
+                    <span class="stat-label">总访问</span>
+                    <b class="stat-num" id="cyx-total">—</b>
+                    <span class="stat-divider">|</span>
+                    <div class="stat-dot stat-dot-online"></div>
+                    <span class="stat-label">在线</span>
+                    <b class="stat-num" id="cyx-online">—</b>
+                </div>
             </div>
         </div>
         <!-- 旋转圆环装饰 -->
@@ -264,6 +277,33 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+    function popNum(el) {
+      el.classList.remove('updating');
+      void el.offsetWidth;
+      el.classList.add('updating');
+    }
+
+    async function updateCounter() {
+      try {
+        const res = await fetch("https://cyxclub-counter.3604596288.workers.dev/");
+        const data = await res.json();
+        const totalEl = document.getElementById("cyx-total");
+        const onlineEl = document.getElementById("cyx-online");
+        const prevTotal = totalEl.textContent;
+        const prevOnline = onlineEl.textContent;
+        totalEl.textContent = data.total.toLocaleString();
+        onlineEl.textContent = data.online;
+        if (prevTotal !== totalEl.textContent) popNum(totalEl);
+        if (prevOnline !== onlineEl.textContent) popNum(onlineEl);
+      } catch (e) {
+        document.getElementById("cyx-total").textContent = "—";
+        document.getElementById("cyx-online").textContent = "—";
+      }
+    }
+    updateCounter();
+    setInterval(updateCounter, 10000);
+    </script>
     <script>
         // 国内可访问的公告数据（API 失败时降级使用）
         const HOME_DEFAULT_NEWS = [
