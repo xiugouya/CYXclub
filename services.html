@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CYX俱乐部套餐购买，白金月卡¥58/月，至尊月卡¥108/月，支持多款游戏托管代练。">
+    <meta property="og:title" content="套餐购买 - CYX俱乐部">
+    <meta property="og:description" content="专业代练托管服务套餐，安全可靠，价格透明。">
+    <meta property="og:type" content="website">
     <title>套餐购买 - CYX俱乐部</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -457,7 +461,7 @@
             </div>
 
             <div class="wechat-qr-notice" style="margin-top: 50px;">
-                <p><i class="fab fa-weixin"></i> 微信客服：fwCYXclub</p>
+                <p><i class="fab fa-weixin"></i> 微信客服：<strong id="cf-wechat-notice">fwCYXclub</strong></p>
             </div>
         </div>
     </section>
@@ -471,12 +475,12 @@
             <div class="payment-qr">
                 <img src="pay.jpg" alt="微信付款码">
             </div>
-            <p class="payment-note">请使用微信扫描上方二维码完成支付</p>
+            <p class="payment-note">请使用微信扫描上方二维码完成支付，支付时<strong style="color:var(--primary-color)">务必在备注填写您购买的游戏名称</strong></p>
             <ul class="payment-steps">
                 <li><i class="fas fa-1"></i> 打开微信扫一扫</li>
                 <li><i class="fas fa-2"></i> 扫描上方付款码</li>
                 <li><i class="fas fa-3"></i> 输入金额并确认支付</li>
-                <li><i class="fas fa-4"></i> 支付成功后联系客服确认</li>
+                <li><i class="fas fa-4"></i> 支付成功后联系客服 <strong id="cf-wechat">fwCYXclub</strong> 确认，备注游戏名称</li>
             </ul>
         </div>
     </div>
@@ -490,7 +494,7 @@
                     <span class="logo-sub">俱乐部</span>
                 </div>
                 <p class="footer-desc">专业游戏代练托管平台</p>
-                <p class="footer-copyright">© 2025 CYX俱乐部. All rights reserved.</p>
+                <p class="footer-copyright">© 2026 CYX俱乐部. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -517,14 +521,6 @@
         
         // ESC键关闭
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closePayment();
-            }
-        });
-    </script>
-</body>
-</html>
-  document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closePayment();
             }

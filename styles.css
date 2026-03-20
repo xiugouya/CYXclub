@@ -1159,6 +1159,18 @@ footer {
     animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* 减少动画（系统偏好设置） */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .hero h1, .hero .tagline, .hero .est-year, .hero .hero-buttons {
+        animation: none !important;
+    }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .navbar {
