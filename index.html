@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CYX俱乐部 - 专业游戏代练托管平台，支持原神、崩铁、绝区零、王者荣耀等多款热门游戏，提供安全可靠的账号托管与代练服务。">
+    <meta name="keywords" content="游戏代练,账号托管,原神代练,崩坏星穹铁道代练,绝区零代练,游戏陪玩">
+    <meta property="og:title" content="CYX俱乐部 - 专业游戏代练托管平台">
+    <meta property="og:description" content="专业游戏代练托管平台，支持多款热门游戏，安全可靠。">
+    <meta property="og:type" content="website">
     <title>CYX俱乐部 - 专业游戏代练托管平台</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -92,7 +98,7 @@
                     <h3>无畏契约</h3>
                     <p>Valorant</p>
                 </div>
-                <a href="#contact" class="game-card more-games">
+                <a href="services.html" class="game-card more-games">
                     <div class="game-icon"><i class="fas fa-plus"></i></div>
                     <h3>更多游戏</h3>
                     <p>联系客服咨询</p>
@@ -237,7 +243,7 @@
                 <div class="contact-card wechat-kf">
                     <i class="fas fa-headset"></i>
                     <h3>微信客服</h3>
-                    <p>fwCYXclub</p>
+                    <p id="cf-wechat-index">fwCYXclub</p>
                 </div>
             </div>
         </div>
@@ -252,32 +258,88 @@
                     <span class="logo-sub">俱乐部</span>
                 </div>
                 <p class="footer-desc">专业游戏代练托管平台</p>
-                <p class="footer-copyright">© 2025 CYX俱乐部. All rights reserved.</p>
+                <p class="footer-copyright">© 2026 CYX俱乐部. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script src="script.js"></script>
     <script>
+        // 国内可访问的公告数据（API 失败时降级使用）
+        const HOME_DEFAULT_NEWS = [
+            {
+                title: 'CYX俱乐部 正式上线运营',
+                date: '2025-01-01',
+                summary: 'CYX俱乐部专注于游戏代练托管服务，支持原神、崩铁、绝区零等多款热门游戏，专业团队为您保驾护航。',
+                category: 'announce',
+                url: 'news.html',
+                source: 'CYX俱乐部官方'
+            },
+            {
+                title: '新春限时优惠活动开启',
+                date: '2025-01-20',
+                summary: '春节期间推出托管月卡限时折扣，至尊月托立减30元，优惠不容错过！',
+                category: 'activity',
+                url: 'news.html',
+                source: 'CYX俱乐部官方'
+            },
+            {
+                title: '网站全新改版上线',
+                date: '2025-02-15',
+                summary: '官网全新升级改版，优化用户体验，服务项目一目了然，下单更便捷。',
+                category: 'maintain',
+                url: 'news.html',
+                source: 'CYX俱乐部官方'
+            },
+            {
+                title: '新增支持游戏：王者荣耀、无畏契约',
+                date: '2025-03-01',
+                summary: '应广大玩家需求，现新增王者荣耀代练及无畏契约上分服务，欢迎咨询客服。',
+                category: 'announce',
+                url: 'news.html',
+                source: 'CYX俱乐部官方'
+            },
+            {
+                title: '五一劳动节福利放送',
+                date: '2025-04-25',
+                summary: '五一假期期间下单即可享受满减优惠，托管服务全部88折，代练订单满100元减15元。',
+                category: 'activity',
+                url: 'news.html',
+                source: 'CYX俱乐部官方'
+            }
+        ];
+
         // 首页公告动态加载
         (async function() {
             const grid = document.getElementById('homeNewsGrid');
-            const HOME_API = 'https://cyx-news.3604596288.workers.dev/';
-            try {
-                const res = await fetch(HOME_API);
-                const news = await res.json();
-                const latest3 = news.slice(0, 3);
-                grid.innerHTML = latest3.map(item => `
-                    <article class="news-card">
-                        <div class="news-date">${item.date}</div>
-                        <h3>${item.title}</h3>
-                        <p>${item.summary}</p>
-                        <a href="${item.url || 'news.html'}" target="_blank" class="news-link">阅读全文 <i class="fas fa-arrow-right"></i></a>
-                        <span class="news-source">${item.source || 'CYX俱乐部'}</span>
-                    </article>`).join('');
-            } catch (e) {
-                grid.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">公告加载失败</p>';
+
+            // JSONBin URL（留空则只用内置数据）
+            const JSONBIN_URL = 'https://gist.githubusercontent.com/xiugouya/30f1b2c21fb885197712dadcdb040aec/raw/news.json';
+
+            let news = HOME_DEFAULT_NEWS;
+
+            if (JSONBIN_URL) {
+                try {
+                    const res = await fetch(JSONBIN_URL);
+                    if (res.ok) {
+                        const json = await res.json();
+                        const data = json.record || json;
+                        if (Array.isArray(data) && data.length > 0) news = data;
+                    }
+                } catch (e) {
+                    console.warn('JSONBin 不可用，使用内置数据');
+                }
             }
+
+            const latest3 = news.slice(0, 3);
+            grid.innerHTML = latest3.map(item => `
+                <article class="news-card">
+                    <div class="news-date">${item.date}</div>
+                    <h3>${item.title}</h3>
+                    <p>${item.summary}</p>
+                    <a href="${item.url || 'news.html'}" class="news-link">阅读全文 <i class="fas fa-arrow-right"></i></a>
+                    <span class="news-source">${item.source || 'CYX俱乐部'}</span>
+                </article>`).join('');
         })();
     </script>
 </body>
