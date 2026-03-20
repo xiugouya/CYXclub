@@ -286,7 +286,7 @@
 
     async function updateCounter() {
       try {
-        const res = await fetch("https://cyxclub-counter.3604596288.workers.dev/");
+        const res = await fetch("https://www.cyxclub.top/.netlify/functions/counter");
         const data = await res.json();
         const totalEl = document.getElementById("cyx-total");
         const onlineEl = document.getElementById("cyx-online");
