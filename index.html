@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -12,8 +12,6 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- 顶部导航 -->
@@ -46,20 +44,14 @@
             <h1>CYX俱乐部</h1>
             <p class="tagline">专业游戏代练托管平台</p>
             <p class="est-year">创立于 2025 年</p>
+            <div class="hero-stats">
+                <span class="stat-item"><span class="stat-lbl">总访问</span><span class="stat-num theme" id="totalCount">—</span></span>
+                <span class="stat-sep">|</span>
+                <span class="stat-item"><span class="stat-lbl"><span class="online-dot"></span>在线</span><span class="stat-num" id="onlineCount">—</span></span>
+            </div>
             <div class="hero-buttons">
                 <a href="services.html" class="btn btn-primary">立即下单</a>
                 <a href="#contact" class="btn btn-secondary">联系我们</a>
-            </div>
-            <div class="hero-stats">
-                <div class="stat-pill">
-                    <div class="stat-dot stat-dot-total"></div>
-                    <span class="stat-label">总访问</span>
-                    <b class="stat-num" id="cyx-total">—</b>
-                    <span class="stat-divider">|</span>
-                    <div class="stat-dot stat-dot-online"></div>
-                    <span class="stat-label">在线</span>
-                    <b class="stat-num" id="cyx-online">—</b>
-                </div>
             </div>
         </div>
         <!-- 旋转圆环装饰 -->
@@ -278,56 +270,6 @@
 
     <script src="script.js"></script>
     <script>
-    // ==========================================
-    // TODO: 部署 Cloudflare Worker 后，把下面的 YOUR-WORKER-URL 换成实际地址
-    // 例如: https://cyxclub-counter.your-account.workers.dev
-    // ==========================================
-    var COUNTER_API_URL = 'https://cyxclub-api.3604596288.workers.dev';
-
-    // 完整的 API 基础 URL（Worker 地址）
-    var API_BASE = 'https://cyxclub-api.3604596288.workers.dev';
-
-    // 正确的 Gist raw URL（Gist ID: 103eac50a510ad84a2e2704cfcf28f2a）
-    var GIST_RAW_URL = 'https://gist.githubusercontent.com/xiugouya/103eac50a510ad84a2e2704cfcf28f2a/raw/cyxclub-counter.json';
-
-    function popNum(el) {
-      el.classList.remove('updating');
-      void el.offsetWidth;
-      el.classList.add('updating');
-    }
-
-    async function updateCounter() {
-      try {
-        const res = await fetch(COUNTER_API_URL);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const totalEl = document.getElementById("cyx-total");
-        const onlineEl = document.getElementById("cyx-online");
-        const prevTotal = totalEl.textContent;
-        const prevOnline = onlineEl.textContent;
-        totalEl.textContent = data.total.toLocaleString();
-        onlineEl.textContent = data.online;
-        if (prevTotal !== totalEl.textContent) popNum(totalEl);
-        if (prevOnline !== onlineEl.textContent) popNum(onlineEl);
-      } catch (e) {
-        console.warn('Counter API 不可用:', e.message);
-        // 网络异常则尝试直接从 Gist 读（展示当前最新值，不触发计数）
-        try {
-          const res = await fetch(GIST_RAW_URL + "?t=" + Date.now());
-          if (!res.ok) throw new Error(`Gist HTTP ${res.status}`);
-          const data = await res.json();
-          document.getElementById("cyx-total").textContent = (data.count || 0).toLocaleString();
-          document.getElementById("cyx-online").textContent = "?";
-        } catch (e2) {
-          document.getElementById("cyx-total").textContent = "—";
-          document.getElementById("cyx-online").textContent = "—";
-        }
-      }
-    }
-    updateCounter();
-    setInterval(updateCounter, 60000); // 每 60 秒刷新
-    </script>
-    <script>
         // 国内可访问的公告数据（API 失败时降级使用）
         const HOME_DEFAULT_NEWS = [
             {
@@ -376,28 +318,21 @@
         (async function() {
             const grid = document.getElementById('homeNewsGrid');
 
-            // Cloudflare Worker API URL（部署后替换）
-            const ANNOUNCEMENTS_API = API_BASE + '/api/announcements?count=3';
+            // JSONBin URL（留空则只用内置数据）
+            const ANNOUNCEMENTS_API = 'https://cyxclub-api.3604596288.workers.dev/api/announcements';
 
             let news = HOME_DEFAULT_NEWS;
 
             try {
-                const res = await fetch(ANNOUNCEMENTS_API);
+                const res = await fetch(ANNOUNCEMENTS_API + '?count=3');
                 if (res.ok) {
                     const json = await res.json();
-                    if (Array.isArray(json.data) && json.data.length > 0) {
-                        news = json.data.map(a => ({
-                            title: a.title,
-                            date: a.date,
-                            summary: a.summary || a.content?.slice(0, 60) + '…' || '',
-                            category: a.category,
-                            url: a.url || 'news.html',
-                            source: a.source || 'CYX俱乐部'
-                        }));
-                    }
+                    const data = json.data || [];
+                    if (Array.isArray(data) && data.length > 0) news = data;
                 }
             } catch (e) {
-                console.warn('Announcements API 不可用，使用内置数据:', e.message);
+                console.warn('API 不可用，使用内置数据');
+            }
             }
 
             const latest3 = news.slice(0, 3);
@@ -410,6 +345,13 @@
                     <span class="news-source">${item.source || 'CYX俱乐部'}</span>
                 </article>`).join('');
         })();
+    </script>
+    <script>
+        fetch('https://cyxclub-api.3604596288.workers.dev/api/counter').then(r=>r.json()).then(d=>{
+        const t=document.getElementById('totalCount'),o=document.getElementById('onlineCount');
+        if(d.total){t.classList.remove('pop');void t.offsetWidth;t.textContent=d.total;t.classList.add('pop');}
+        if(d.online){o.classList.remove('pop');void o.offsetWidth;o.textContent=d.online;o.classList.add('pop');}
+    }).catch(()=>{});
     </script>
 </body>
 </html>

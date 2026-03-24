@@ -1,10 +1,5 @@
 // CYX俱乐部 - JavaScript文件
 
-// ====== 全局配置 ======
-window.CYX_CONFIG = {
-  wechat: 'fwCYXclub'   // 微信客服，修改这里全站生效
-};
-
 document.addEventListener('DOMContentLoaded', function() {
     // =====================
     // 滚动进度条
@@ -187,17 +182,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // ====== 全局配置：统一填充各页面硬编码内容 ======
-    const cfg = window.CYX_CONFIG || { wechat: 'fwCYXclub' };
-
-    // 微信客服（services.html）
-    const elWechat = document.getElementById('cf-wechat');
-    if (elWechat) elWechat.textContent = cfg.wechat;
-    const elWechatNotice = document.getElementById('cf-wechat-notice');
-    if (elWechatNotice) elWechatNotice.textContent = cfg.wechat;
-
-    // 微信客服（index.html）
-    const elWechatIndex = document.getElementById('cf-wechat-index');
-    if (elWechatIndex) elWechatIndex.textContent = cfg.wechat;
 });
