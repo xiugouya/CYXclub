@@ -278,7 +278,14 @@
 
     <script src="script.js"></script>
     <script>
-    var GIST_RAW_URL = 'https://gist.githubusercontent.com/xiugouya/30f1b2c21fb885197712dadcdb040aec/raw/cyxclub-counter.json';
+    // ==========================================
+    // TODO: 部署 Cloudflare Worker 后，把下面的 YOUR-WORKER-URL 换成实际地址
+    // 例如: https://cyxclub-counter.your-account.workers.dev
+    // ==========================================
+    var COUNTER_API_URL = 'https://cyxclub-api.3604596288.workers.dev';
+
+    // 正确的 Gist raw URL（Gist ID: 103eac50a510ad84a2e2704cfcf28f2a）
+    var GIST_RAW_URL = 'https://gist.githubusercontent.com/xiugouya/103eac50a510ad84a2e2704cfcf28f2a/raw/cyxclub-counter.json';
 
     function popNum(el) {
       el.classList.remove('updating');
@@ -287,9 +294,9 @@
     }
 
     async function updateCounter() {
-      // 走 Netlify Function 触发计数（带防抖：每 30 秒最多写一次 Gist）
       try {
-        const res = await fetch("https://www.cyxclub.top/.netlify/functions/counter");
+        const res = await fetch(COUNTER_API_URL);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const totalEl = document.getElementById("cyx-total");
         const onlineEl = document.getElementById("cyx-online");
@@ -300,9 +307,11 @@
         if (prevTotal !== totalEl.textContent) popNum(totalEl);
         if (prevOnline !== onlineEl.textContent) popNum(onlineEl);
       } catch (e) {
+        console.warn('Counter API 不可用:', e.message);
         // 网络异常则尝试直接从 Gist 读（展示当前最新值，不触发计数）
         try {
           const res = await fetch(GIST_RAW_URL + "?t=" + Date.now());
+          if (!res.ok) throw new Error(`Gist HTTP ${res.status}`);
           const data = await res.json();
           document.getElementById("cyx-total").textContent = (data.count || 0).toLocaleString();
           document.getElementById("cyx-online").textContent = "?";
@@ -364,22 +373,28 @@
         (async function() {
             const grid = document.getElementById('homeNewsGrid');
 
-            // JSONBin URL（留空则只用内置数据）
-            const JSONBIN_URL = 'https://gist.githubusercontent.com/xiugouya/30f1b2c21fb885197712dadcdb040aec/raw/news.json';
+            // Cloudflare Worker API URL（部署后替换）
+            const ANNOUNCEMENTS_API = '/api/announcements?count=3';
 
             let news = HOME_DEFAULT_NEWS;
 
-            if (JSONBIN_URL) {
-                try {
-                    const res = await fetch(JSONBIN_URL);
-                    if (res.ok) {
-                        const json = await res.json();
-                        const data = json.record || json;
-                        if (Array.isArray(data) && data.length > 0) news = data;
+            try {
+                const res = await fetch(ANNOUNCEMENTS_API);
+                if (res.ok) {
+                    const json = await res.json();
+                    if (Array.isArray(json.data) && json.data.length > 0) {
+                        news = json.data.map(a => ({
+                            title: a.title,
+                            date: a.date,
+                            summary: a.summary || a.content?.slice(0, 60) + '…' || '',
+                            category: a.category,
+                            url: a.url || 'news.html',
+                            source: a.source || 'CYX俱乐部'
+                        }));
                     }
-                } catch (e) {
-                    console.warn('JSONBin 不可用，使用内置数据');
                 }
+            } catch (e) {
+                console.warn('Announcements API 不可用，使用内置数据:', e.message);
             }
 
             const latest3 = news.slice(0, 3);
