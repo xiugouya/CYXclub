@@ -1,4 +1,155 @@
-<!DOCTYPE html>
+// 生成修复后的 news.html（内嵌公告数据 + 移除 fetch 调用）
+const fs = require('fs');
+const path = require('path');
+
+// 公告数据（从 API 同步，去重）
+const INJECTED_NEWS = [
+    {
+        title: 'CYX俱乐部正式上线运营',
+        date: '2025-01-01',
+        summary: 'CYX俱乐部正式上线运营，支持多款热门游戏，专业团队为您服务。',
+        category: 'announce',
+        url: '#',
+        source: 'CYX俱乐部'
+    },
+    {
+        title: '新春限时优惠活动开启',
+        date: '2025-01-20',
+        summary: '春节期间推出托管月卡限时折扣，至尊月托立减30元，优惠不容错过！',
+        category: 'activity',
+        url: '#',
+        source: 'CYX俱乐部'
+    },
+    {
+        title: '网站全新改版上线',
+        date: '2025-02-15',
+        summary: '官网全新升级改版，优化用户体验，服务项目一目了然，下单更便捷。',
+        category: 'maintain',
+        url: '#',
+        source: 'CYX俱乐部'
+    },
+    {
+        title: '新增支持游戏：王者荣耀、无畏契约',
+        date: '2025-03-01',
+        summary: '应广大玩家需求，现新增王者荣耀代练及无畏契约上分服务，欢迎咨询客服。',
+        category: 'announce',
+        url: '#',
+        source: 'CYX俱乐部'
+    },
+    {
+        title: '五一劳动节福利放送',
+        date: '2025-04-25',
+        summary: '五一假期托管88折，代练满100减15，优惠不容错过。',
+        category: 'activity',
+        url: '#',
+        source: 'CYX俱乐部'
+    }
+];
+
+const newsItems = INJECTED_NEWS.map(item => `{
+        title: ${JSON.stringify(item.title)},
+        date: ${JSON.stringify(item.date)},
+        summary: ${JSON.stringify(item.summary)},
+        category: ${JSON.stringify(item.category)},
+        url: ${JSON.stringify(item.url)},
+        source: ${JSON.stringify(item.source)}
+    }`).join(',\n');
+
+const CATEGORY_MAP_STR = JSON.stringify({
+    announce: '官方公告',
+    activity: '活动快报',
+    maintain: '网站维护'
+}, null, 4).replace(/\n/g, '\n    ');
+
+const scriptContent = `
+    <script>
+        const INJECTED_NEWS = [
+        ${newsItems}
+        ];
+
+        const CATEGORY_MAP = ${CATEGORY_MAP_STR};
+
+        function buildArticleHTML(item) {
+            const linkHTML = item.url && item.url !== '#'
+                ? \`<a href="\${item.url}" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>\`
+                : '';
+            const sourceText = item.source || 'CYX俱乐部';
+            return \`
+                <article class="news-item">
+                    <div class="news-item-header">
+                        <h3>\${item.title}</h3>
+                        <span class="news-date">\${item.date}</span>
+                    </div>
+                    <p>\${item.summary}</p>
+                    <div class="news-item-footer">
+                        <span class="news-source">\${sourceText}</span>
+                        \${linkHTML}
+                    </div>
+                </article>\`;
+        }
+
+        function groupByCategory(news) {
+            const groups = { announce: [], activity: [], maintain: [] };
+            news.forEach(item => {
+                const cat = item.category || 'announce';
+                if (groups[cat]) groups[cat].push(item);
+            });
+            return groups;
+        }
+
+        function renderNews(news) {
+            const allList = document.querySelector('[data-category="all"] .news-list');
+            const grouped = groupByCategory(news);
+            allList.innerHTML = news.map(buildArticleHTML).join('');
+            Object.keys(grouped).forEach(cat => {
+                const listEl = document.getElementById('list-' + cat);
+                if (listEl) listEl.innerHTML = grouped[cat].map(buildArticleHTML).join('');
+            });
+            const counts = {
+                all: news.length,
+                announce: grouped.announce.length,
+                activity: grouped.activity.length,
+                maintain: grouped.maintain.length
+            };
+            document.querySelectorAll('.news-tab').forEach(tab => {
+                const cat = tab.dataset.category;
+                const countEl = tab.querySelector('.tab-count');
+                if (countEl && counts[cat] !== undefined) countEl.textContent = counts[cat];
+            });
+            document.querySelectorAll('.news-item').forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.5s ease ' + (i % 5) * 80 + 'ms, transform 0.5s ease ' + (i % 5) * 80 + 'ms';
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 50);
+            });
+        }
+
+        // 分类切换
+        document.querySelectorAll('.news-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const category = tab.dataset.category;
+                document.querySelectorAll('.news-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.news-category').forEach(cat => {
+                    if (cat.dataset.category === 'all') {
+                        cat.style.display = category === 'all' ? 'block' : 'none';
+                    } else {
+                        cat.style.display = cat.dataset.category === category ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+
+        // 直接使用内嵌数据，不再发 fetch 请求
+        renderNews(INJECTED_NEWS);
+    </script>
+`;
+
+// 生成 HTML 模板
+const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -138,134 +289,9 @@
         </div>
     </footer>
 
-
-    <script>
-        const INJECTED_NEWS = [
-        {
-        title: "CYX俱乐部正式上线运营",
-        date: "2025-01-01",
-        summary: "CYX俱乐部正式上线运营，支持多款热门游戏，专业团队为您服务。",
-        category: "announce",
-        url: "#",
-        source: "CYX俱乐部"
-    },
-{
-        title: "新春限时优惠活动开启",
-        date: "2025-01-20",
-        summary: "春节期间推出托管月卡限时折扣，至尊月托立减30元，优惠不容错过！",
-        category: "activity",
-        url: "#",
-        source: "CYX俱乐部"
-    },
-{
-        title: "网站全新改版上线",
-        date: "2025-02-15",
-        summary: "官网全新升级改版，优化用户体验，服务项目一目了然，下单更便捷。",
-        category: "maintain",
-        url: "#",
-        source: "CYX俱乐部"
-    },
-{
-        title: "新增支持游戏：王者荣耀、无畏契约",
-        date: "2025-03-01",
-        summary: "应广大玩家需求，现新增王者荣耀代练及无畏契约上分服务，欢迎咨询客服。",
-        category: "announce",
-        url: "#",
-        source: "CYX俱乐部"
-    },
-{
-        title: "五一劳动节福利放送",
-        date: "2025-04-25",
-        summary: "五一假期托管88折，代练满100减15，优惠不容错过。",
-        category: "activity",
-        url: "#",
-        source: "CYX俱乐部"
-    }
-        ];
-
-        const CATEGORY_MAP = {
-        "announce": "官方公告",
-        "activity": "活动快报",
-        "maintain": "网站维护"
-    };
-
-        function buildArticleHTML(item) {
-            const linkHTML = item.url && item.url !== '#'
-                ? `<a href="${item.url}" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>`
-                : '';
-            const sourceText = item.source || 'CYX俱乐部';
-            return `
-                <article class="news-item">
-                    <div class="news-item-header">
-                        <h3>${item.title}</h3>
-                        <span class="news-date">${item.date}</span>
-                    </div>
-                    <p>${item.summary}</p>
-                    <div class="news-item-footer">
-                        <span class="news-source">${sourceText}</span>
-                        ${linkHTML}
-                    </div>
-                </article>`;
-        }
-
-        function groupByCategory(news) {
-            const groups = { announce: [], activity: [], maintain: [] };
-            news.forEach(item => {
-                const cat = item.category || 'announce';
-                if (groups[cat]) groups[cat].push(item);
-            });
-            return groups;
-        }
-
-        function renderNews(news) {
-            const allList = document.querySelector('[data-category="all"] .news-list');
-            const grouped = groupByCategory(news);
-            allList.innerHTML = news.map(buildArticleHTML).join('');
-            Object.keys(grouped).forEach(cat => {
-                const listEl = document.getElementById('list-' + cat);
-                if (listEl) listEl.innerHTML = grouped[cat].map(buildArticleHTML).join('');
-            });
-            const counts = {
-                all: news.length,
-                announce: grouped.announce.length,
-                activity: grouped.activity.length,
-                maintain: grouped.maintain.length
-            };
-            document.querySelectorAll('.news-tab').forEach(tab => {
-                const cat = tab.dataset.category;
-                const countEl = tab.querySelector('.tab-count');
-                if (countEl && counts[cat] !== undefined) countEl.textContent = counts[cat];
-            });
-            document.querySelectorAll('.news-item').forEach((el, i) => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(20px)';
-                el.style.transition = 'opacity 0.5s ease ' + (i % 5) * 80 + 'ms, transform 0.5s ease ' + (i % 5) * 80 + 'ms';
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                }, 50);
-            });
-        }
-
-        // 分类切换
-        document.querySelectorAll('.news-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const category = tab.dataset.category;
-                document.querySelectorAll('.news-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                document.querySelectorAll('.news-category').forEach(cat => {
-                    if (cat.dataset.category === 'all') {
-                        cat.style.display = category === 'all' ? 'block' : 'none';
-                    } else {
-                        cat.style.display = cat.dataset.category === category ? 'block' : 'none';
-                    }
-                });
-            });
-        });
-
-        // 直接使用内嵌数据，不再发 fetch 请求
-        renderNews(INJECTED_NEWS);
-    </script>
-
+${scriptContent}
 </body>
-</html>
+</html>`;
+
+fs.writeFileSync(path.join(__dirname, 'news.html'), html, 'utf8');
+console.log('✅ news.html 生成成功，共 ' + INJECTED_NEWS.length + ' 条公告');
