@@ -3,10 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CYX俱乐部官方公告列表，包括官方通知、活动快报及网站更新动态。">
-    <meta property="og:title" content="公告列表 - CYX俱乐部">
-    <meta property="og:description" content="官方公告、活动快报、网站维护通知。">
-    <meta property="og:type" content="website">
     <title>公告列表 - CYX俱乐部</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -390,14 +386,7 @@
                 <p>该分类暂无公告</p>
             </div>
             
-            <!-- 公告数据来源提示（静默降级时显示） -->
-            <div class="news-api-notice" id="newsApiNotice" style="display:none; text-align:center; margin-top: 30px; padding: 12px 20px; background: rgba(249,249,0,0.1); border: 1px solid rgba(249,249,0,0.3); border-radius: 10px;">
-                <p style="color: var(--primary-color); font-size: 13px;"><i class="fas fa-info-circle"></i> 当前显示内置公告数据，
-                    <a href="news.html" onclick="location.reload()" style="color: var(--primary-color); text-decoration: underline; cursor: pointer;">刷新页面</a> 尝试重新加载最新公告
-                </p>
-            </div>
-
-            <div class="wechat-qr-notice" style="margin-top: 30px;">
+            <div class="wechat-qr-notice" style="margin-top: 60px;">
                 <p><i class="fab fa-weixin"></i> 关注「CYX电竞」微信公众号，获取更多资讯</p>
             </div>
         </div>
@@ -412,7 +401,7 @@
                     <span class="logo-sub">俱乐部</span>
                 </div>
                 <p class="footer-desc">专业游戏代练托管平台</p>
-                <p class="footer-copyright">© 2026 CYX俱乐部. All rights reserved.</p>
+                <p class="footer-copyright">© 2025 CYX俱乐部. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -423,7 +412,7 @@
         // 在 https://jsonbin.io 创建 free bin，把你的 bin URL 填在这里
         // 格式：https://api.jsonbin.io/v3/b/YOUR_BIN_ID/latest
         // 不填或访问失败时自动降级使用 DEFAULT_NEWS
-        const ANNOUNCEMENTS_API = 'https://cyxclub-api.3604596288.workers.dev/api/announcements';
+        const JSONBIN_URL = 'https://gist.githubusercontent.com/xiugouya/30f1b2c21fb885197712dadcdb040aec/raw/news.json';
 
         // 内嵌默认公告（API 不可用时降级显示）
         const DEFAULT_NEWS = [
@@ -585,8 +574,6 @@
             showLoading();
 
             // 有 JSONBin URL 时优先请求
-            let usedFallback = false;
-
             if (JSONBIN_URL) {
                 try {
                     const res = await fetch(JSONBIN_URL);
@@ -600,17 +587,11 @@
                     }
                 } catch (e) {
                     console.warn('JSONBin 不可用，降级使用内置数据');
-                    usedFallback = true;
                 }
-            } else {
-                usedFallback = true;
             }
 
             // 降级显示内置数据
             renderNews(DEFAULT_NEWS);
-            if (usedFallback) {
-                document.getElementById('newsApiNotice').style.display = 'block';
-            }
         }
 
         loadNews();
