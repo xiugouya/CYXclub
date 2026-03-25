@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CYX俱乐部官方公告列表，包括官方通知、活动快报及网站更新动态。">
+    <meta property="og:title" content="公告列表 - CYX俱乐部">
+    <meta property="og:description" content="官方公告、活动快报、网站维护通知。">
+    <meta property="og:type" content="website">
     <title>公告列表 - CYX俱乐部</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -276,6 +280,75 @@
                 font-size: 13px;
             }
         }
+
+        /* 公告详情弹窗 */
+        .detail-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .detail-overlay.active { display: flex; }
+        .detail-modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 680px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeInUp 0.3s ease;
+        }
+        .detail-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: color 0.2s;
+        }
+        .detail-close:hover { color: #fff; }
+        .detail-meta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--text-gray);
+            flex-wrap: wrap;
+        }
+        .detail-cat {
+            background: rgba(249,249,0,0.15);
+            color: var(--primary-color);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .detail-modal h2 {
+            font-size: 22px;
+            color: #fff;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        .detail-body {
+            color: var(--text-gray);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+        .news-item[onclick]:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -309,7 +382,7 @@
             <a href="index.html" class="back-home">
                 <i class="fas fa-arrow-left"></i> 返回首页
             </a>
-            
+
             <h2 class="section-title">公告列表</h2>
             <p class="section-subtitle">来自 CYX俱乐部 官方微信公众号</p>
             
@@ -386,11 +459,32 @@
                 <p>该分类暂无公告</p>
             </div>
             
-            <div class="wechat-qr-notice" style="margin-top: 60px;">
+            <!-- 公告数据来源提示（静默降级时显示） -->
+            <div class="news-api-notice" id="newsApiNotice" style="display:none; text-align:center; margin-top: 30px; padding: 12px 20px; background: rgba(249,249,0,0.1); border: 1px solid rgba(249,249,0,0.3); border-radius: 10px;">
+                <p style="color: var(--primary-color); font-size: 13px;"><i class="fas fa-info-circle"></i> 当前显示内置公告数据，
+                    <a href="news.html" onclick="location.reload()" style="color: var(--primary-color); text-decoration: underline; cursor: pointer;">刷新页面</a> 尝试重新加载最新公告
+                </p>
+            </div>
+
+            <div class="wechat-qr-notice" style="margin-top: 30px;">
                 <p><i class="fab fa-weixin"></i> 关注「CYX电竞」微信公众号，获取更多资讯</p>
             </div>
         </div>
     </section>
+
+    <!-- 公告详情弹窗 -->
+    <div id="detail-overlay" class="detail-overlay" onclick="if(event.target===this)closeDetail()">
+        <div class="detail-modal">
+            <button class="detail-close" onclick="closeDetail()"><i class="fas fa-times"></i></button>
+            <div class="detail-meta">
+                <span id="detail-category" class="detail-cat"></span>
+                <span id="detail-date"></span>
+                <span id="detail-source"></span>
+            </div>
+            <h2 id="detail-title"></h2>
+            <div id="detail-content" class="detail-body"></div>
+        </div>
+    </div>
 
     <!-- 页脚 -->
     <footer>
@@ -401,7 +495,7 @@
                     <span class="logo-sub">俱乐部</span>
                 </div>
                 <p class="footer-desc">专业游戏代练托管平台</p>
-                <p class="footer-copyright">© 2025 CYX俱乐部. All rights reserved.</p>
+                <p class="footer-copyright">© 2026 CYX俱乐部. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -409,10 +503,7 @@
     <script src="script.js"></script>
     <script>
         // ====== 公告配置 ======
-        // 在 https://jsonbin.io 创建 free bin，把你的 bin URL 填在这里
-        // 格式：https://api.jsonbin.io/v3/b/YOUR_BIN_ID/latest
-        // 不填或访问失败时自动降级使用 DEFAULT_NEWS
-        const JSONBIN_URL = 'https://gist.githubusercontent.com/xiugouya/30f1b2c21fb885197712dadcdb040aec/raw/news.json';
+        const ANNOUNCEMENTS_API = 'https://cyxclub-api.3604596288.workers.dev/api/announcements';
 
         // 内嵌默认公告（API 不可用时降级显示）
         const DEFAULT_NEWS = [
@@ -470,23 +561,45 @@
             maintain: 'wrench'
         };
 
-        function buildArticleHTML(item) {
-            const linkHTML = item.url && item.url !== '#'
-                ? `<a href="${item.url}" target="_blank" class="news-link">查看原文 <i class="fas fa-external-link-alt"></i></a>`
-                : '';
+        // 公告数据缓存（供详情弹窗使用）
+        let _newsCache = [];
+
+        function buildArticleHTML(item, idx) {
+            const stickyBadge = item.sticky ? ' <span style="color:#f87171;font-size:12px">★ 置顶</span>' : '';
             const sourceText = item.source || 'CYX俱乐部官方';
+            const hasContent = item.content && item.content.trim().length > 0;
+            const clickable = hasContent ? `onclick="showDetail(${idx})"` : '';
+            const cursorStyle = hasContent ? 'cursor:pointer' : '';
             return `
-                <article class="news-item">
+                <article class="news-item" ${clickable ? `style="${cursorStyle}" ${clickable}` : ''}>
                     <div class="news-item-header">
-                        <h3>${item.title}</h3>
+                        <h3>${item.title}${stickyBadge}</h3>
                         <span class="news-date">${item.date}</span>
                     </div>
-                    <p>${item.summary}</p>
+                    <p>${item.summary || ''}</p>
                     <div class="news-item-footer">
                         <span class="news-source">${sourceText}</span>
-                        ${linkHTML}
+                        ${hasContent ? '<span class="news-link" style="color:var(--primary-color)">阅读全文 <i class="fas fa-angle-right"></i></span>' : ''}
                     </div>
                 </article>`;
+        }
+
+        // 公告详情弹窗
+        function showDetail(idx) {
+            const item = _newsCache[idx];
+            if (!item) return;
+            const overlay = document.getElementById('detail-overlay');
+            document.getElementById('detail-title').textContent = item.title;
+            document.getElementById('detail-date').textContent = item.date;
+            document.getElementById('detail-source').textContent = item.source || 'CYX俱乐部官方';
+            const catMap = { announce: '官方公告', activity: '活动快报', maintain: '网站维护' };
+            document.getElementById('detail-category').textContent = catMap[item.category] || item.category;
+            document.getElementById('detail-content').innerHTML = (item.content || '').replace(/\n/g, '<br>');
+            overlay.classList.add('active');
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-overlay').classList.remove('active');
         }
 
         function groupByCategory(news) {
@@ -499,15 +612,19 @@
         }
 
         function renderNews(news) {
+            _newsCache = news;
             const allList = document.querySelector('[data-category="all"] .news-list');
             const grouped = groupByCategory(news);
 
-            allList.innerHTML = news.map(buildArticleHTML).join('');
+            allList.innerHTML = news.map((item, i) => buildArticleHTML(item, i)).join('');
 
             Object.keys(grouped).forEach(cat => {
                 const listEl = document.getElementById('list-' + cat);
                 if (listEl) {
-                    listEl.innerHTML = grouped[cat].map(buildArticleHTML).join('');
+                    listEl.innerHTML = grouped[cat].map(item => {
+                        const idx = _newsCache.indexOf(item);
+                        return buildArticleHTML(item, idx);
+                    }).join('');
                 }
             });
 
@@ -569,30 +686,34 @@
             tab.addEventListener('click', () => setActiveTab(tab.dataset.category));
         });
 
-        // 加载公告：优先 JSONBin，失败则降级
+        // 加载公告：优先 Workers API，失败则降级
         async function loadNews() {
             showLoading();
+            let usedFallback = false;
 
-            // 有 JSONBin URL 时优先请求
-            if (JSONBIN_URL) {
-                try {
-                    const res = await fetch(JSONBIN_URL);
-                    if (!res.ok) throw new Error('bin error');
-                    const json = await res.json();
-                    // JSONBin 返回格式：{ record: [...] } 或直接数组
-                    const news = json.record || json;
-                    if (Array.isArray(news) && news.length > 0) {
-                        renderNews(news);
-                        return;
-                    }
-                } catch (e) {
-                    console.warn('JSONBin 不可用，降级使用内置数据');
+            try {
+                const res = await fetch(ANNOUNCEMENTS_API);
+                if (!res.ok) throw new Error('API error');
+                const json = await res.json();
+                const data = json.data || [];
+                if (Array.isArray(data) && data.length > 0) {
+                    renderNews(data);
+                    return;
                 }
+            } catch (e) {
+                console.warn('API 不可用，降级使用内置数据');
+                usedFallback = true;
             }
 
             // 降级显示内置数据
             renderNews(DEFAULT_NEWS);
+            if (usedFallback) {
+                document.getElementById('newsApiNotice').style.display = 'block';
+            }
         }
+
+        // ESC 关闭详情弹窗
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
 
         loadNews();
     </script>
