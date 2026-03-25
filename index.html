@@ -349,7 +349,8 @@
         fetch('https://cyxclub-api.3604596288.workers.dev/api/counter').then(r=>r.json()).then(d=>{
         const t=document.getElementById('totalCount'),o=document.getElementById('onlineCount');
         if(d.total){t.classList.remove('pop');void t.offsetWidth;t.textContent=d.total;t.classList.add('pop');}
-        if(d.online){o.classList.remove('pop');void o.offsetWidth;o.textContent=d.online;o.classList.add('pop');}
+        const online=Math.max(d.online||0,1);
+        o.classList.remove('pop');void o.offsetWidth;o.textContent=online;o.classList.add('pop');
     }).catch(()=>{});
     </script>
 </body>

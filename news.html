@@ -579,7 +579,10 @@
                     <p>${item.summary || ''}</p>
                     <div class="news-item-footer">
                         <span class="news-source">${sourceText}</span>
-                        ${hasContent ? '<span class="news-link" style="color:var(--primary-color)">阅读全文 <i class="fas fa-angle-right"></i></span>' : ''}
+                        <span>
+                            ${hasContent ? '<span class="news-link" style="color:var(--primary-color)">阅读全文 <i class="fas fa-angle-right"></i></span>' : ''}
+                            ${item.url && item.url !== '#' ? `<a href="${item.url}" target="_blank" class="news-link" onclick="event.stopPropagation()">原文链接 <i class="fas fa-external-link-alt"></i></a>` : ''}
+                        </span>
                     </div>
                 </article>`;
         }
