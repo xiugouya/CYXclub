@@ -287,26 +287,50 @@ async function handleAPI(request, env) {
   // ---- 卡密管理 ----
 
   // POST /api/admin/cards - 批量生成卡密
+  // body: { count: number, product: string }  product = 商品号，如 "A01"
   if (path === '/admin/cards' && method === 'POST') {
     const db = await getDB(env);
     let body;
     try { body = await request.json(); } catch { return err('Invalid JSON'); }
     const count = Math.min(Math.max(parseInt(body.count) || 1, 1), 100);
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const product = (body.product || 'DEF').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || 'DEF';
+
+    // 日期部分 MMDD
+    const now = new Date();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const datePart = mm + dd;
+
+    // 查找今天该商品的最大序号
+    const prefix = `CYX-${datePart}-${product}-%`;
+    const lastCard = await db.prepare(
+      "SELECT card_key FROM card_keys WHERE card_key LIKE ? ORDER BY id DESC LIMIT 1"
+    ).bind(prefix).first();
+
+    let seq = 1;
+    if (lastCard) {
+      // 格式: CYX-MMDD-PRODUCT-SEQ-RAND，取 SEQ 部分
+      const parts = lastCard.card_key.split('-');
+      if (parts.length >= 4) {
+        const lastSeq = parseInt(parts[3]);
+        if (!isNaN(lastSeq)) seq = lastSeq + 1;
+      }
+    }
+
+    const randChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const keys = [];
     for (let i = 0; i < count; i++) {
-      let key = '';
-      const bytes = crypto.getRandomValues(new Uint8Array(16));
-      for (let j = 0; j < 16; j++) {
-        if (j > 0 && j % 4 === 0) key += '-';
-        key += chars[bytes[j] % chars.length];
-      }
+      const seqStr = String(seq + i).padStart(4, '0');
+      const bytes = crypto.getRandomValues(new Uint8Array(4));
+      let rand = '';
+      for (let j = 0; j < 4; j++) rand += randChars[bytes[j] % randChars.length];
+      const key = `CYX-${datePart}-${product}-${seqStr}-${rand}`;
       try {
         await db.prepare('INSERT INTO card_keys (card_key) VALUES (?)').bind(key).run();
         keys.push(key);
-      } catch { i--; }
+      } catch { /* 重复则跳过 */ }
     }
-    return ok({ keys, count: keys.length });
+    return ok({ keys, count: keys.length, product, date: mm + '/' + dd });
   }
 
   // GET /api/admin/cards - 获取所有卡密
@@ -323,6 +347,52 @@ async function handleAPI(request, env) {
   if (cardDelMatch && method === 'DELETE') {
     const db = await getDB(env);
     await db.prepare('DELETE FROM card_keys WHERE id = ?').bind(parseInt(cardDelMatch[1])).run();
+    return ok({});
+  }
+
+  // ---- 商品管理 ----
+
+  // POST /api/admin/products - 新增商品
+  if (path === '/admin/products' && method === 'POST') {
+    const db = await getDB(env);
+    let body;
+    try { body = await request.json(); } catch { return err('Invalid JSON'); }
+    const code = (body.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    const name = (body.name || '').trim().slice(0, 50);
+    const description = (body.description || '').trim().slice(0, 200);
+    if (!code || !name) return err('商品编号和名称不能为空');
+    const existing = await db.prepare('SELECT id FROM products WHERE code = ?').bind(code).first();
+    if (existing) return err('商品编号已存在');
+    await db.prepare('INSERT INTO products (code, name, description) VALUES (?, ?, ?)').bind(code, name, description).run();
+    return ok({ code, name });
+  }
+
+  // GET /api/admin/products - 获取所有商品
+  if (path === '/admin/products' && method === 'GET') {
+    const db = await getDB(env);
+    const result = await db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
+    return json({ data: result.results });
+  }
+
+  // PUT /api/admin/products/:id - 更新商品
+  const prodPutMatch = path.match(/^\/admin\/products\/(\d+)$/);
+  if (prodPutMatch && method === 'PUT') {
+    const db = await getDB(env);
+    const id = parseInt(prodPutMatch[1]);
+    let body;
+    try { body = await request.json(); } catch { return err('Invalid JSON'); }
+    const name = (body.name || '').trim().slice(0, 50);
+    const description = (body.description || '').trim().slice(0, 200);
+    if (!name) return err('商品名称不能为空');
+    await db.prepare('UPDATE products SET name = ?, description = ?, updated_at = datetime("now", "+8 hours") WHERE id = ?').bind(name, description, id).run();
+    return ok({ id });
+  }
+
+  // DELETE /api/admin/products/:id - 删除商品
+  const prodDelMatch = path.match(/^\/admin\/products\/(\d+)$/);
+  if (prodDelMatch && method === 'DELETE') {
+    const db = await getDB(env);
+    await db.prepare('DELETE FROM products WHERE id = ?').bind(parseInt(prodDelMatch[1])).run();
     return ok({});
   }
 
@@ -472,6 +542,7 @@ tr:hover td { background: #1e1e1e; }
 
   <div class="tabs">
     <div class="tab active" onclick="switchTab('announcements')">📋 公告管理</div>
+    <div class="tab" onclick="switchTab('products')">📦 商品管理</div>
     <div class="tab" onclick="switchTab('cards')">🔑 卡密管理</div>
     <div class="tab" onclick="switchTab('config')">⚙️ 网站配置</div>
   </div>
@@ -492,20 +563,49 @@ tr:hover td { background: #1e1e1e; }
     </div>
   </div>
 
-  <!-- 卡密管理 -->
-  <div id="tab-cards" class="content" style="display:none">
+  <!-- 商品管理 -->
+  <div id="tab-products" class="content" style="display:none">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <h3>卡密管理</h3>
-      <div style="display:flex;gap:12px;align-items:center;">
-        <input type="number" id="card-gen-count" value="5" min="1" max="100" style="width:80px;padding:6px 10px;border:1px solid #333;border-radius:6px;background:#111;color:#fff;font-size:14px;text-align:center">
-        <button class="btn btn-success" onclick="generateCards()">+ 生成卡密</button>
-      </div>
+      <h3>商品列表</h3>
+      <button class="btn btn-success" onclick="openProductModal()">+ 新增商品</button>
     </div>
-    <div id="cards-stats" style="margin-bottom:16px;color:#888;font-size:13px;"></div>
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th>ID</th><th>卡密</th><th>状态</th><th>使用者</th><th>创建时间</th><th>使用时间</th><th>操作</th>
+          <th>ID</th><th>商品编号</th><th>商品名称</th><th>描述</th><th>已生成卡密</th><th>创建时间</th><th>操作</th>
+        </tr></thead>
+        <tbody id="products-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 卡密管理 -->
+  <div id="tab-cards" class="content" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <h3>卡密管理</h3>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label style="color:#888;font-size:13px;white-space:nowrap;">选择商品</label>
+          <select id="card-product" style="width:180px;padding:6px 10px;border:1px solid #333;border-radius:6px;background:#111;color:#fff;font-size:14px;">
+            <option value="">-- 请先添加商品 --</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label style="color:#888;font-size:13px;white-space:nowrap;">数量</label>
+          <input type="number" id="card-gen-count" value="5" min="1" max="100" style="width:70px;padding:6px 10px;border:1px solid #333;border-radius:6px;background:#111;color:#fff;font-size:14px;text-align:center">
+        </div>
+        <button class="btn btn-success" onclick="generateCards()">+ 生成卡密</button>
+        <button class="btn btn-sm" onclick="copyAllCards()" id="btn-copy-all" style="display:none">📋 复制全部</button>
+      </div>
+    </div>
+    <div id="cards-stats" style="margin-bottom:16px;color:#888;font-size:13px;"></div>
+    <div style="margin-bottom:12px;padding:10px 14px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;font-size:12px;color:#888;">
+      📌 格式：<code style="color:#7dd3fc">CYX-MMDD-商品编号-序号-随机码</code> &nbsp;例：<code style="color:#7dd3fc">CYX-0327-A01-0001-K9X2</code>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>ID</th><th>卡密</th><th>商品</th><th>状态</th><th>使用者</th><th>创建时间</th><th>使用时间</th><th>操作</th>
         </tr></thead>
         <tbody id="cards-tbody"></tbody>
       </table>
@@ -570,6 +670,30 @@ tr:hover td { background: #1e1e1e; }
   </div>
 </div>
 
+<!-- 商品编辑弹窗 -->
+<div id="product-modal" class="modal">
+  <div class="modal-box">
+    <h3 id="product-modal-title">新增商品</h3>
+    <input type="hidden" id="product-id">
+    <div class="form-row">
+      <label>商品编号 <span style="color:#888;font-size:11px">（字母数字，如 A01、YYDL）</span></label>
+      <input type="text" id="product-code" placeholder="A01" maxlength="10" style="text-transform:uppercase">
+    </div>
+    <div class="form-row">
+      <label>商品名称</label>
+      <input type="text" id="product-name" placeholder="如：原神月卡托管" maxlength="50">
+    </div>
+    <div class="form-row">
+      <label>描述（可选）</label>
+      <textarea id="product-desc" placeholder="商品备注说明" style="height:60px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-sm" onclick="closeProductModal()">取消</button>
+      <button class="btn btn-success btn-sm" onclick="saveProduct()">保存</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -616,10 +740,12 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById('tab-announcements').style.display = tab === 'announcements' ? 'block' : 'none';
+  document.getElementById('tab-products').style.display = tab === 'products' ? 'block' : 'none';
   document.getElementById('tab-cards').style.display = tab === 'cards' ? 'block' : 'none';
   document.getElementById('tab-config').style.display = tab === 'config' ? 'block' : 'none';
   if (tab === 'announcements') loadAnnouncements();
-  if (tab === 'cards') loadCards();
+  if (tab === 'products') loadProducts();
+  if (tab === 'cards') { loadCardProductDropdown(); loadCards(); }
   if (tab === 'config') loadConfig();
 }
 
@@ -705,7 +831,115 @@ async function delAnn(id) {
   loadAnnouncements();
 }
 
+// ---- 商品管理 ----
+async function loadProducts() {
+  const res = await fetch(API + '/admin/products', { headers: authHeaders() });
+  const data = await res.json();
+  if (!res.ok) return toast(data.error || '加载失败', 'error');
+  const products = data.data || [];
+  // 同时加载卡密统计
+  const cardsRes = await fetch(API + '/admin/cards', { headers: authHeaders() });
+  const cardsData = cardsRes.ok ? await cardsRes.json() : { data: [] };
+  const cards = cardsData.data || [];
+  // 统计每个商品的卡密数
+  const cardCount = {};
+  cards.forEach(c => {
+    const info = parseCardInfo(c.card_key);
+    if (info.product) cardCount[info.product] = (cardCount[info.product] || 0) + 1;
+  });
+  const tbody = document.getElementById('products-tbody');
+  tbody.innerHTML = products.map(p => \`
+    <tr>
+      <td>\${p.id}</td>
+      <td><code style="color:#c084fc;font-size:14px">\${p.code}</code></td>
+      <td>\${p.name}</td>
+      <td style="color:#888;font-size:13px">\${p.description || '—'}</td>
+      <td><span style="color:#7dd3fc">\${cardCount[p.code] || 0}</span></td>
+      <td>\${p.created_at || ''}</td>
+      <td class="actions">
+        <button class="btn btn-sm" onclick="editProduct(\${p.id}, '\${p.code}', '\${p.name.replace(/'/g,"\\'")}', '\${(p.description||'').replace(/'/g,"\\'")}')">编辑</button>
+        <button class="btn btn-sm btn-danger" onclick="delProduct(\${p.id})">删除</button>
+      </td>
+    </tr>\`).join('');
+}
+
+function openProductModal() {
+  document.getElementById('product-modal').classList.add('active');
+  document.getElementById('product-modal-title').textContent = '新增商品';
+  document.getElementById('product-id').value = '';
+  document.getElementById('product-code').value = '';
+  document.getElementById('product-code').disabled = false;
+  document.getElementById('product-name').value = '';
+  document.getElementById('product-desc').value = '';
+}
+
+function editProduct(id, code, name, desc) {
+  document.getElementById('product-modal').classList.add('active');
+  document.getElementById('product-modal-title').textContent = '编辑商品';
+  document.getElementById('product-id').value = id;
+  document.getElementById('product-code').value = code;
+  document.getElementById('product-code').disabled = true;
+  document.getElementById('product-name').value = name;
+  document.getElementById('product-desc').value = desc;
+}
+
+function closeProductModal() { document.getElementById('product-modal').classList.remove('active'); }
+
+async function saveProduct() {
+  const id = document.getElementById('product-id').value;
+  const code = document.getElementById('product-code').value.trim().toUpperCase();
+  const name = document.getElementById('product-name').value.trim();
+  const description = document.getElementById('product-desc').value.trim();
+  if (!code || !name) return toast('请填写商品编号和名称', 'error');
+  const url = id ? API + '/admin/products/' + id : API + '/admin/products';
+  const method = id ? 'PUT' : 'POST';
+  const body = id ? { name, description } : { code, name, description };
+  const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) return toast(data.error || '保存失败', 'error');
+  toast(id ? '更新成功' : '新增成功', 'ok');
+  closeProductModal();
+  loadProducts();
+}
+
+async function delProduct(id) {
+  if (!confirm('确定删除此商品？')) return;
+  const res = await fetch(API + '/admin/products/' + id, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) { const data = await res.json(); return toast(data.error || '删除失败', 'error'); }
+  toast('删除成功', 'ok');
+  loadProducts();
+}
+
 // ---- 卡密管理 ----
+let lastGeneratedKeys = [];
+
+function parseCardInfo(key) {
+  // CYX-MMDD-PRODUCT-SEQ-RAND
+  const parts = key.split('-');
+  if (parts.length >= 5 && parts[0] === 'CYX') {
+    return { date: parts[1].slice(0,2) + '/' + parts[1].slice(2), product: parts[2], seq: parts[3] };
+  }
+  return { date: '', product: '', seq: '' };
+}
+
+async function loadCardProductDropdown() {
+  const select = document.getElementById('card-product');
+  try {
+    const res = await fetch(API + '/admin/products', { headers: authHeaders() });
+    const data = await res.json();
+    const products = data.data || [];
+    if (!products.length) {
+      select.innerHTML = '<option value="">-- 请先去商品管理添加商品 --</option>';
+      return;
+    }
+    select.innerHTML = products.map(p =>
+      '<option value="' + p.code + '">' + p.code + ' — ' + p.name + '</option>'
+    ).join('');
+  } catch {
+    select.innerHTML = '<option value="">-- 加载失败 --</option>';
+  }
+}
+
 async function loadCards() {
   const res = await fetch(API + '/admin/cards', { headers: authHeaders() });
   const data = await res.json();
@@ -717,10 +951,13 @@ async function loadCards() {
   document.getElementById('cards-stats').innerHTML =
     '共 <b>' + total + '</b> 张卡密 &nbsp;|&nbsp; <span style="color:#4ade80">未使用 ' + unused + '</span> &nbsp;|&nbsp; <span style="color:#f87171">已使用 ' + used + '</span>';
   const tbody = document.getElementById('cards-tbody');
-  tbody.innerHTML = cards.map(c => \`
+  tbody.innerHTML = cards.map(c => {
+    const info = parseCardInfo(c.card_key);
+    return \`
     <tr>
       <td>\${c.id}</td>
       <td style="font-family:monospace;letter-spacing:1px;color:#7dd3fc">\${c.card_key}</td>
+      <td><span style="background:#2a2a3a;color:#c084fc;padding:2px 8px;border-radius:4px;font-size:12px">\${info.product || '—'}</span></td>
       <td>\${c.used
         ? '<span class="badge" style="background:#3a1e1e;color:#f87171">已使用</span>'
         : '<span class="badge" style="background:#1e3a2f;color:#4ade80">未使用</span>'
@@ -732,22 +969,34 @@ async function loadCards() {
         <button class="btn btn-sm" onclick="copyCard('\${c.card_key}')">复制</button>
         <button class="btn btn-sm btn-danger" onclick="delCard(\${c.id})">删除</button>
       </td>
-    </tr>\`).join('');
+    </tr>\`;
+  }).join('');
 }
 
 async function generateCards() {
   const count = parseInt(document.getElementById('card-gen-count').value) || 5;
+  const product = document.getElementById('card-product').value;
+  if (!product) return toast('请先选择商品（去商品管理添加）', 'error');
   const res = await fetch(API + '/admin/cards', {
-    method: 'POST', headers: authHeaders(), body: JSON.stringify({ count })
+    method: 'POST', headers: authHeaders(), body: JSON.stringify({ count, product })
   });
   const data = await res.json();
   if (!res.ok) return toast(data.error || '生成失败', 'error');
-  toast('已生成 ' + data.count + ' 张卡密', 'ok');
+  lastGeneratedKeys = data.keys || [];
+  document.getElementById('btn-copy-all').style.display = lastGeneratedKeys.length ? 'inline-block' : 'none';
+  toast('已生成 ' + data.count + ' 张 [' + data.product + '] 卡密', 'ok');
   loadCards();
 }
 
 function copyCard(key) {
   navigator.clipboard.writeText(key).then(() => toast('已复制到剪贴板', 'ok')).catch(() => toast('复制失败', 'error'));
+}
+
+function copyAllCards() {
+  if (!lastGeneratedKeys.length) return;
+  navigator.clipboard.writeText(lastGeneratedKeys.join('\n'))
+    .then(() => toast('已复制 ' + lastGeneratedKeys.length + ' 张卡密', 'ok'))
+    .catch(() => toast('复制失败', 'error'));
 }
 
 async function delCard(id) {
