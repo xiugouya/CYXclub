@@ -1,4 +1,7 @@
-/**
+import { writeFileSync } from 'fs';
+
+// Generate clean api.js (no HTML embedded)
+const apiCode = `/**
  * CYX俱乐部 - Cloudflare Workers API
  */
 
@@ -50,7 +53,7 @@ async function handleAPI(request, env) {
     const r = await db.prepare('SELECT * FROM announcements ORDER BY sticky DESC, date DESC LIMIT ?').bind(parseInt(url.searchParams.get('count') || '10')).all();
     return json({ data: r.results });
   }
-  const sm = path.match(/^\/announcements\/(\d+)$/);
+  const sm = path.match(/^\\/announcements\\/(\\d+)$/);
   if (sm && method === 'GET') {
     const db = await getDB(env);
     const r = await db.prepare('SELECT * FROM announcements WHERE id = ?').bind(parseInt(sm[1])).first();
@@ -62,7 +65,7 @@ async function handleAPI(request, env) {
     const cfg = {}; for (const row of r.results) cfg[row.key] = row.value;
     return json({ data: cfg });
   }
-  const cm = path.match(/^\/config\/([a-z_]+)$/);
+  const cm = path.match(/^\\/config\\/([a-z_]+)$/);
   if (cm && method === 'GET') {
     const db = await getDB(env);
     const r = await db.prepare('SELECT * FROM config WHERE key = ?').bind(cm[1]).first();
@@ -114,7 +117,7 @@ async function handleAPI(request, env) {
     const r = await db.prepare('INSERT INTO announcements (title,content,summary,category,date,source,url,sticky) VALUES (?,?,?,?,?,?,?,?)').bind(title, content, summary||'', category||'announce', date, source||'CYX俱乐部', url||'news.html', sticky?1:0).run();
     return ok({ id: r.meta.last_insert_id });
   }
-  const am = path.match(/^\/admin\/announcements\/(\d+)$/);
+  const am = path.match(/^\\/admin\\/announcements\\/(\\d+)$/);
   if (am) {
     const db = await getDB(env);
     const id = parseInt(am[1]);
@@ -157,7 +160,7 @@ async function handleAPI(request, env) {
     }
     return ok({ keys, count: keys.length, product });
   }
-  const cdm = path.match(/^\/admin\/cards\/(\d+)$/);
+  const cdm = path.match(/^\\/admin\\/cards\\/(\\d+)$/);
   if (cdm && method === 'DELETE') { const db = await getDB(env); await db.prepare('DELETE FROM card_keys WHERE id = ?').bind(parseInt(cdm[1])).run(); return ok({}); }
 
   // products
@@ -178,7 +181,7 @@ async function handleAPI(request, env) {
     await db.prepare('INSERT INTO products (code, name, description) VALUES (?, ?, ?)').bind(code, name, desc).run();
     return ok({ code, name });
   }
-  const pm = path.match(/^\/admin\/products\/(\d+)$/);
+  const pm = path.match(/^\\/admin\\/products\\/(\\d+)$/);
   if (pm) {
     const db = await getDB(env);
     const id = parseInt(pm[1]);
@@ -199,7 +202,7 @@ async function handleAPI(request, env) {
     const r = await db.prepare('SELECT * FROM config').all();
     return json({ data: r.results });
   }
-  const ckm = path.match(/^\/admin\/config\/([a-z_]+)$/);
+  const ckm = path.match(/^\\/admin\\/config\\/([a-z_]+)$/);
   if (ckm && method === 'PUT') {
     const db = await getDB(env);
     let body; try { body = await request.json(); } catch { return err('Invalid JSON'); }
@@ -225,3 +228,7 @@ export default {
     return fetch(request);
   },
 };
+`;
+
+writeFileSync('C:/Users/cxk/Desktop/CYXclub-main/workers/api.js', apiCode, 'utf8');
+console.log('api.js written: ' + apiCode.length + ' chars');

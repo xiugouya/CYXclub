@@ -3,6 +3,14 @@ main = "workers/api.js"
 compatibility_date = "2024-01-01"
 
 [[d1_databases]]
-binding = "cyxclub_db"                              # Workers 代码里用 env.cyxclub_db 访问
-database_name = "cyxclub-db"
-database_id = "e9c8b31e-80a6-4b0a-8023-64ce0ff22f11"
+binding = "cyxclub_db"
+database_name = "cyx-club-db"
+database_id = "af4003ba-28d6-4c23-aee0-e726a4f01256"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "d4ae5f0ba0234a4fac645f69fb71ca42"
+
+[vars]
+ENVIRONMENT = "production"
+ALLOWED_ORIGINS = "https://cyx-club.pages.dev,http://localhost:5173,http://localhost:3000"

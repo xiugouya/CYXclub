@@ -74,7 +74,7 @@ function updateNavbar() {
         userLink.href = 'employee-dashboard.html';
         userLink.textContent = '员工中心';
       } else if (user.role === 'admin') {
-        userLink.href = 'admin.html';
+        userLink.href = '/admin';
         userLink.textContent = '管理后台';
       } else {
         userLink.href = 'dashboard.html';
