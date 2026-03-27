@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户中心 - CYX俱乐部</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dash-page { min-height: 100vh; display: flex; flex-direction: column; }
+
+        .dash-main {
+            flex: 1;
+            padding: 120px 20px 60px;
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+        }
+
+        .dash-container { max-width: 1000px; margin: 0 auto; }
+
+        /* 用户信息卡 */
+        .user-info-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.5s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-info-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+
+        .user-info-left { display: flex; align-items: center; gap: 20px; }
+
+        .user-avatar {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: var(--dark-bg); font-weight: 700;
+        }
+
+        .user-name { font-size: 22px; font-weight: 700; color: var(--text-light); }
+        .user-meta { font-size: 13px; color: var(--text-gray); margin-top: 4px; }
+
+        .btn-logout {
+            padding: 10px 24px;
+            background: transparent;
+            border: 1.5px solid #f87171;
+            color: #f87171;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-logout:hover {
+            background: #f87171;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* 操作栏 */
+        .dash-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .dash-section-title {
+            font-size: 22px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .btn-new-order {
+            padding: 12px 28px;
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+            font-family: inherit;
+        }
+
+        .btn-new-order:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(249,249,0,0.3);
+        }
+
+        /* 订单列表 */
+        .orders-list {
+            animation: fadeInUp 0.7s ease both;
+        }
+
+        .order-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .order-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .order-game { font-size: 17px; font-weight: 700; color: var(--text-light); }
+
+        .order-game i { color: var(--primary-color); margin-right: 8px; }
+
+        .status-badge {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending { background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
+        .status-accepted { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+        .status-in_progress { background: rgba(168,85,247,0.15); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+        .status-completed { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+        .status-cancelled { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+
+        .order-body { display: flex; gap: 30px; flex-wrap: wrap; }
+        .order-detail { font-size: 14px; color: var(--text-gray); }
+        .order-detail strong { color: var(--text-light); font-weight: 500; }
+
+        .order-notes {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--darker-bg);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-gray);
+        }
+
+        .empty-state i { font-size: 48px; margin-bottom: 16px; color: var(--border-color); }
+        .empty-state p { font-size: 16px; }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeInScale 0.35s ease both;
+            position: relative;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .modal-title i { margin-right: 10px; }
+
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 22px;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 5px;
+        }
+
+        .modal-close:hover { color: var(--text-light); }
+
+        .form-group { margin-bottom: 20px; }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group label i { margin-right: 6px; color: var(--primary-color); width: 16px; text-align: center; }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 13px 16px;
+            background: var(--darker-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+
+        .form-select option { background: var(--card-bg); color: var(--text-light); }
+
+        .form-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(249,249,0,0.1);
+        }
+
+        .form-error { display: none; color: #f87171; font-size: 13px; margin-top: 8px; padding: 8px 12px; background: rgba(248,113,113,0.1); border-radius: 8px; }
+        .form-error.visible { display: block; }
+
+        .modal-actions { display: flex; gap: 12px; margin-top: 25px; }
+
+        .btn-submit-order {
+            flex: 1;
+            padding: 14px;
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-submit-order:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-submit-order:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-cancel-order {
+            padding: 14px 24px;
+            background: transparent;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-gray);
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-cancel-order:hover { border-color: var(--text-gray); color: var(--text-light); }
+
+        .loading-state { text-align: center; padding: 40px; color: var(--text-gray); }
+        .loading-state i { margin-right: 8px; }
+
+        @media (max-width: 640px) {
+            .user-info-card { flex-direction: column; align-items: flex-start; }
+            .dash-actions { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .modal-content { padding: 28px 22px; }
+            .order-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body class="dash-page">
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <span class="logo-text">CYX</span>
+                <span class="logo-sub">俱乐部</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="services.html">套餐购买</a></li>
+                <li><a href="news.html">公告</a></li>
+                <li><a href="community.html">社区</a></li>
+                <li><a href="dashboard.html" class="nav-link-user">用户中心</a></li>
+                <li><a href="login.html" class="nav-link-login" style="display:none">登录</a></li>
+            </ul>
+            <div class="hamburger"><span></span><span></span><span></span></div>
+        </nav>
+    </header>
+
+    <main class="dash-main">
+        <div class="dash-container">
+            <!-- 用户信息 -->
+            <div class="user-info-card">
+                <div class="user-info-left">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div>
+                        <div class="user-name" id="userName">加载中...</div>
+                        <div class="user-meta" id="userMeta"></div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                </button>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="dash-actions">
+                <h2 class="dash-section-title"><i class="fas fa-clipboard-list"></i> 我的订单</h2>
+                <button class="btn-new-order" onclick="openOrderModal()">
+                    <i class="fas fa-plus"></i> 新建订单
+                </button>
+            </div>
+
+            <!-- 订单列表 -->
+            <div class="orders-list" id="ordersList">
+                <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载订单中...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新建订单模态框 -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeOrderModal()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title"><i class="fas fa-plus-circle"></i> 新建订单</h3>
+
+            <form id="orderForm">
+                <div class="form-group">
+                    <label><i class="fas fa-gamepad"></i> 选择游戏</label>
+                    <select class="form-select" id="orderGame" required>
+                        <option value="">请选择游戏</option>
+                        <option value="原神">原神</option>
+                        <option value="崩坏星穹铁道">崩坏星穹铁道</option>
+                        <option value="绝区零">绝区零</option>
+                        <option value="终末地">终末地</option>
+                        <option value="三角洲行动">三角洲行动</option>
+                        <option value="王者荣耀">王者荣耀</option>
+                        <option value="无畏契约">无畏契约</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-cogs"></i> 服务类型</label>
+                    <select class="form-select" id="orderServiceType" required>
+                        <option value="">请选择服务类型</option>
+                        <option value="代练">代练</option>
+                        <option value="托管">托管</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user-cog"></i> 选择员工</label>
+                    <select class="form-select" id="orderEmployee">
+                        <option value="">自动分配</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-edit"></i> 详细说明</label>
+                    <textarea class="form-textarea" id="orderDetails" placeholder="请输入游戏账号信息、具体需求等详细说明..." rows="4"></textarea>
+                </div>
+
+                <div class="form-error" id="orderError"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel-order" onclick="closeOrderModal()">取消</button>
+                    <button type="submit" class="btn-submit-order" id="orderSubmitBtn">
+                        <i class="fas fa-paper-plane"></i> 提交订单
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-text">CYX</span>
+                    <span class="logo-sub">俱乐部</span>
+                </div>
+                <p class="footer-desc">专业游戏代练托管平台</p>
+                <p class="footer-copyright">© 2026 CYX俱乐部. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const STATUS_MAP = {
+            pending: '待处理',
+            accepted: '已接单',
+            in_progress: '进行中',
+            completed: '已完成',
+            cancelled: '已取消'
+        };
+
+        const GAME_ICONS = {
+            '原神': 'fas fa-wind',
+            '崩坏星穹铁道': 'fas fa-train',
+            '绝区零': 'fas fa-bolt',
+            '终末地': 'fas fa-island-tropical',
+            '三角洲行动': 'fas fa-crosshairs',
+            '王者荣耀': 'fas fa-crown',
+            '无畏契约': 'fas fa-shield-halved',
+            '其他': 'fas fa-gamepad'
+        };
+
+        let currentUser = null;
+
+        // 页面初始化
+        (async () => {
+            currentUser = await checkAuth();
+            if (!currentUser) { window.location.href = 'login.html'; return; }
+            if (currentUser.role === 'employee') { window.location.href = 'employee-dashboard.html'; return; }
+            if (currentUser.role === 'admin') { window.location.href = 'admin.html'; return; }
+
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+            document.getElementById('userMeta').textContent = `注册时间: ${currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString('zh-CN') : '未知'}`;
+
+            loadOrders();
+            loadEmployees();
+
+            // 移动端菜单
+            const hamburger = document.querySelector('.hamburger');
+            const navLinks = document.querySelector('.nav-links');
+            if (hamburger) {
+                hamburger.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    hamburger.classList.toggle('active');
+                });
+            }
+        })();
+
+        async function loadOrders() {
+            const container = document.getElementById('ordersList');
+            const res = await apiFetch('/orders/my');
+            if (!res.ok) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载订单失败</p></div>';
+                return;
+            }
+            const orders = res.data.orders || res.data || [];
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无订单，点击上方按钮创建新订单</p></div>';
+                return;
+            }
+            container.innerHTML = orders.map(o => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-game">
+                            <i class="${GAME_ICONS[o.game] || 'fas fa-gamepad'}"></i>
+                            ${o.game} - ${o.service_type}
+                        </span>
+                        <span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span>
+                    </div>
+                    <div class="order-body">
+                        <span class="order-detail"><strong>订单号:</strong> #${o.id}</span>
+                        <span class="order-detail"><strong>创建时间:</strong> ${new Date(o.created_at).toLocaleString('zh-CN')}</span>
+                        ${o.employee_name ? `<span class="order-detail"><strong>负责员工:</strong> ${o.employee_name}</span>` : ''}
+                    </div>
+                    ${o.details ? `<div class="order-notes">${o.details}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function loadEmployees() {
+            const select = document.getElementById('orderEmployee');
+            const res = await apiFetch('/employees');
+            if (res.ok) {
+                const employees = res.data.employees || res.data || [];
+                employees.forEach(emp => {
+                    const opt = document.createElement('option');
+                    opt.value = emp.id;
+                    opt.textContent = emp.username;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function openOrderModal() {
+            document.getElementById('orderModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('active');
+            document.body.style.overflow = '';
+            document.getElementById('orderForm').reset();
+            hideError(document.getElementById('orderError'));
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('orderModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeOrderModal();
+        });
+
+        // 提交订单
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('orderSubmitBtn');
+            const errorEl = document.getElementById('orderError');
+            hideError(errorEl);
+
+            const game = document.getElementById('orderGame').value;
+            const serviceType = document.getElementById('orderServiceType').value;
+            const employeeId = document.getElementById('orderEmployee').value;
+            const details = document.getElementById('orderDetails').value.trim();
+
+            if (!game || !serviceType) {
+                showError(errorEl, '请选择游戏和服务类型');
+                return;
+            }
+
+            setLoading(btn, true);
+
+            const body = { game, service_type: serviceType, details };
+            if (employeeId) body.employee_id = parseInt(employeeId);
+
+            const res = await apiFetch('/orders', {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                closeOrderModal();
+                loadOrders();
+            } else {
+                showError(errorEl, res.data.error || '创建订单失败');
+            }
+            setLoading(btn, false);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - CYX俱乐部</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-page { min-height: 100vh; display: flex; flex-direction: column; }
+
+        .admin-main {
+            flex: 1;
+            padding: 120px 20px 60px;
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+        }
+
+        .admin-container { max-width: 1100px; margin: 0 auto; }
+
+        /* 顶栏 */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            animation: fadeInUp 0.5s ease both;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        .admin-title i { margin-right: 10px; }
+
+        .btn-logout {
+            padding: 10px 24px;
+            background: transparent;
+            border: 1.5px solid #f87171;
+            color: #f87171;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-logout:hover { background: #f87171; color: #fff; transform: translateY(-2px); }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 35px;
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover { transform: translateY(-4px); border-color: var(--primary-color); }
+        .stat-card:hover::after { transform: scaleX(1); }
+
+        .stat-card i { font-size: 28px; color: var(--primary-color); margin-bottom: 12px; }
+        .stat-number { font-size: 32px; font-weight: 900; color: var(--text-light); }
+        .stat-label { font-size: 13px; color: var(--text-gray); margin-top: 4px; }
+
+        /* 面板 */
+        .admin-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.7s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .panel-title i { color: var(--primary-color); margin-right: 8px; }
+
+        /* 按钮 */
+        .btn-action {
+            padding: 9px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-yellow { background: var(--primary-color); color: var(--dark-bg); }
+        .btn-yellow:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,249,0,0.3); }
+        .btn-yellow:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-gray);
+        }
+        .btn-outline:hover { border-color: var(--primary-color); color: var(--text-light); }
+
+        .btn-green { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+        .btn-green:hover { background: #4ade80; color: #fff; }
+
+        .btn-red { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+        .btn-red:hover { background: #f87171; color: #fff; }
+
+        /* 表单行 */
+        .inline-form {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .inline-form .form-group { margin-bottom: 0; flex: 1; min-width: 160px; }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-gray);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--darker-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(249,249,0,0.1);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        .form-select option { background: var(--card-bg); color: var(--text-light); }
+
+        /* 表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 14px;
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px 14px;
+            color: var(--text-light);
+            border-bottom: 1px solid rgba(51,51,51,0.5);
+        }
+
+        .data-table tr:hover td { background: rgba(249,249,0,0.03); }
+
+        .data-table .mono { font-family: 'Courier New', monospace; font-size: 13px; }
+
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .status-badge { padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 700; }
+        .status-used { background: rgba(74,222,128,0.15); color: #4ade80; }
+        .status-unused { background: rgba(250,204,21,0.15); color: #facc15; }
+        .status-pending { background: rgba(250,204,21,0.15); color: #facc15; }
+        .status-accepted { background: rgba(96,165,250,0.15); color: #60a5fa; }
+        .status-in_progress { background: rgba(168,85,247,0.15); color: #a855f7; }
+        .status-completed { background: rgba(74,222,128,0.15); color: #4ade80; }
+        .status-cancelled { background: rgba(248,113,113,0.15); color: #f87171; }
+
+        /* 成功消息 */
+        .toast {
+            display: none;
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            padding: 14px 24px;
+            background: var(--card-bg);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 3000;
+            animation: fadeInRight 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .toast.visible { display: block; }
+        .toast.error { border-color: #f87171; color: #f87171; }
+        .toast i { margin-right: 8px; }
+
+        .empty-msg { text-align: center; color: var(--text-gray); padding: 30px; font-size: 14px; }
+        .loading-msg { text-align: center; color: var(--text-gray); padding: 30px; }
+
+        /* 标签页 */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 25px;
+            background: var(--darker-bg);
+            border-radius: 14px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            animation: fadeInUp 0.6s ease both;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 11px 16px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-gray);
+            border-radius: 11px;
+            transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+            border: none;
+            background: transparent;
+            font-family: inherit;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            box-shadow: 0 4px 15px rgba(249,249,0,0.2);
+        }
+
+        .tab-btn:not(.active):hover { color: var(--text-light); background: rgba(255,255,255,0.05); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeInUp 0.35s ease both; }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .data-table { font-size: 13px; }
+            .data-table th, .data-table td { padding: 10px 10px; }
+            .tab-btn { min-width: 80px; font-size: 13px; padding: 10px 12px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .inline-form { flex-direction: column; }
+            .inline-form .form-group { min-width: 100%; }
+        }
+    </style>
+</head>
+<body class="admin-page">
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast"></div>
+
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <span class="logo-text">CYX</span>
+                <span class="logo-sub">俱乐部</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="services.html">套餐购买</a></li>
+                <li><a href="news.html">公告</a></li>
+                <li><a href="community.html">社区</a></li>
+                <li><a href="admin.html" class="nav-link-user">管理后台</a></li>
+                <li><a href="login.html" class="nav-link-login" style="display:none">登录</a></li>
+            </ul>
+            <div class="hamburger"><span></span><span></span><span></span></div>
+        </nav>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-container">
+            <!-- 标题 -->
+            <div class="admin-header">
+                <h1 class="admin-title"><i class="fas fa-cog"></i> 管理后台</h1>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                </button>
+            </div>
+
+            <!-- 统计概览 -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card"><i class="fas fa-users"></i><div class="stat-number" id="statUsers">—</div><div class="stat-label">注册用户</div></div>
+                <div class="stat-card"><i class="fas fa-user-tie"></i><div class="stat-number" id="statEmployees">—</div><div class="stat-label">员工数量</div></div>
+                <div class="stat-card"><i class="fas fa-clipboard-list"></i><div class="stat-number" id="statOrders">—</div><div class="stat-label">总订单数</div></div>
+                <div class="stat-card"><i class="fas fa-key"></i><div class="stat-number" id="statKeys">—</div><div class="stat-label">卡密总数</div></div>
+            </div>
+
+            <!-- 标签页 -->
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="keys"><i class="fas fa-key"></i> 卡密管理</button>
+                <button class="tab-btn" data-tab="orders"><i class="fas fa-clipboard-list"></i> 订单管理</button>
+                <button class="tab-btn" data-tab="employees"><i class="fas fa-user-tie"></i> 员工管理</button>
+            </div>
+
+            <!-- 卡密管理 -->
+            <div class="tab-panel active" id="tab-keys">
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-plus-circle"></i> 生成卡密</h3>
+                    </div>
+                    <div class="inline-form">
+                        <div class="form-group">
+                            <label>生成数量</label>
+                            <input type="number" class="form-input" id="keyCount" value="5" min="1" max="100">
+                        </div>
+                        <button class="btn-action btn-yellow" onclick="generateKeys()">
+                            <i class="fas fa-magic"></i> 生成
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-list"></i> 卡密列表</h3>
+                        <button class="btn-action btn-outline" onclick="loadCardKeys()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="table-wrap" id="keysTableWrap">
+                        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订单管理 -->
+            <div class="tab-panel" id="tab-orders">
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-clipboard-list"></i> 全部订单</h3>
+                        <button class="btn-action btn-outline" onclick="loadAllOrders()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="table-wrap" id="ordersTableWrap">
+                        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 员工管理 -->
+            <div class="tab-panel" id="tab-employees">
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-user-plus"></i> 创建员工账号</h3>
+                    </div>
+                    <div class="inline-form" id="createEmpForm">
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" class="form-input" id="empUsername" placeholder="员工用户名">
+                        </div>
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="password" class="form-input" id="empPassword" placeholder="初始密码">
+                        </div>
+                        <button class="btn-action btn-green" onclick="createEmployee()">
+                            <i class="fas fa-user-plus"></i> 创建
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-users"></i> 员工列表</h3>
+                        <button class="btn-action btn-outline" onclick="loadEmployees()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="table-wrap" id="empTableWrap">
+                        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-text">CYX</span>
+                    <span class="logo-sub">俱乐部</span>
+                </div>
+                <p class="footer-desc">专业游戏代练托管平台</p>
+                <p class="footer-copyright">© 2026 CYX俱乐部. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const STATUS_MAP = {
+            pending: '待处理', accepted: '已接单', in_progress: '进行中',
+            completed: '已完成', cancelled: '已取消'
+        };
+
+        (async () => {
+            const user = await checkAuth();
+            if (!user) { window.location.href = 'login.html'; return; }
+            if (user.role !== 'admin') {
+                window.location.href = user.role === 'employee' ? 'employee-dashboard.html' : 'dashboard.html';
+                return;
+            }
+
+            loadStats();
+            loadCardKeys();
+
+            // 标签页切换
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+
+                    // 懒加载
+                    if (btn.dataset.tab === 'orders') loadAllOrders();
+                    if (btn.dataset.tab === 'employees') loadEmployees();
+                });
+            });
+
+            // 移动端菜单
+            const hamburger = document.querySelector('.hamburger');
+            const navLinks = document.querySelector('.nav-links');
+            if (hamburger) {
+                hamburger.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    hamburger.classList.toggle('active');
+                });
+            }
+        })();
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            toast.className = 'toast visible' + (isError ? ' error' : '');
+            setTimeout(() => { toast.classList.remove('visible'); }, 3000);
+        }
+
+        // 统计
+        async function loadStats() {
+            const res = await apiFetch('/admin/stats');
+            if (res.ok) {
+                const s = res.data;
+                document.getElementById('statUsers').textContent = s.users ?? s.totalUsers ?? '—';
+                document.getElementById('statEmployees').textContent = s.employees ?? s.totalEmployees ?? '—';
+                document.getElementById('statOrders').textContent = s.orders ?? s.totalOrders ?? '—';
+                document.getElementById('statKeys').textContent = s.cardKeys ?? s.totalKeys ?? '—';
+            }
+        }
+
+        // 卡密
+        async function generateKeys() {
+            const count = parseInt(document.getElementById('keyCount').value) || 1;
+            if (count < 1 || count > 100) { showToast('数量范围: 1-100', true); return; }
+
+            const res = await apiFetch('/admin/card-keys/generate', {
+                method: 'POST',
+                body: JSON.stringify({ count })
+            });
+
+            if (res.ok) {
+                showToast(`成功生成 ${count} 个卡密`);
+                loadCardKeys();
+                loadStats();
+            } else {
+                showToast(res.data.error || '生成失败', true);
+            }
+        }
+
+        async function loadCardKeys() {
+            const wrap = document.getElementById('keysTableWrap');
+            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+
+            const res = await apiFetch('/admin/card-keys');
+            if (!res.ok) {
+                wrap.innerHTML = '<div class="empty-msg">加载失败</div>';
+                return;
+            }
+
+            const keys = res.data.cardKeys || res.data.keys || res.data || [];
+            if (keys.length === 0) {
+                wrap.innerHTML = '<div class="empty-msg">暂无卡密</div>';
+                return;
+            }
+
+            wrap.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>卡密</th><th>状态</th><th>使用者</th><th>创建时间</th></tr></thead>
+                    <tbody>${keys.map(k => `
+                        <tr>
+                            <td>${k.id}</td>
+                            <td class="mono">${k.key || k.card_key}</td>
+                            <td><span class="status-badge ${k.used || k.used_by ? 'status-used' : 'status-unused'}">${k.used || k.used_by ? '已使用' : '未使用'}</span></td>
+                            <td>${k.used_by_username || k.used_by || '—'}</td>
+                            <td>${k.created_at ? new Date(k.created_at).toLocaleString('zh-CN') : '—'}</td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>`;
+        }
+
+        // 订单
+        async function loadAllOrders() {
+            const wrap = document.getElementById('ordersTableWrap');
+            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+
+            const res = await apiFetch('/admin/orders');
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
+
+            const orders = res.data.orders || res.data || [];
+            if (orders.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无订单</div>'; return; }
+
+            wrap.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>用户</th><th>游戏</th><th>服务</th><th>状态</th><th>员工</th><th>创建时间</th></tr></thead>
+                    <tbody>${orders.map(o => `
+                        <tr>
+                            <td>#${o.id}</td>
+                            <td>${o.user_name || '—'}</td>
+                            <td>${o.game}</td>
+                            <td>${o.service_type}</td>
+                            <td><span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span></td>
+                            <td>${o.employee_name || '未分配'}</td>
+                            <td>${new Date(o.created_at).toLocaleString('zh-CN')}</td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>`;
+        }
+
+        // 员工
+        async function createEmployee() {
+            const username = document.getElementById('empUsername').value.trim();
+            const password = document.getElementById('empPassword').value;
+
+            if (!username || !password) { showToast('请填写用户名和密码', true); return; }
+
+            const res = await apiFetch('/admin/employees', {
+                method: 'POST',
+                body: JSON.stringify({ username, password })
+            });
+
+            if (res.ok) {
+                showToast('员工账号创建成功');
+                document.getElementById('empUsername').value = '';
+                document.getElementById('empPassword').value = '';
+                loadEmployees();
+                loadStats();
+            } else {
+                showToast(res.data.error || '创建失败', true);
+            }
+        }
+
+        async function loadEmployees() {
+            const wrap = document.getElementById('empTableWrap');
+            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+
+            const res = await apiFetch('/admin/employees');
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
+
+            const emps = res.data.employees || res.data || [];
+            if (emps.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无员工</div>'; return; }
+
+            wrap.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>用户名</th><th>创建时间</th></tr></thead>
+                    <tbody>${emps.map(e => `
+                        <tr>
+                            <td>${e.id}</td>
+                            <td>${e.username}</td>
+                            <td>${e.created_at ? new Date(e.created_at).toLocaleString('zh-CN') : '—'}</td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>`;
+        }
+    </script>
+</body>
+</html>

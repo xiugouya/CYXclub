@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - CYX俱乐部</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-hero {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 60px;
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 50%, #1a1a10 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(249,249,0,0.04) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(249,249,0,0.03) 0%, transparent 40%);
+            animation: rotateSlow 60s linear infinite;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 50px 45px;
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 1;
+            animation: fadeInScale 0.6s cubic-bezier(0.22,1,0.36,1) both;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .auth-logo .logo-text { font-size: 42px; display: inline; }
+        .auth-logo .logo-sub { font-size: 20px; }
+        .auth-logo p { color: var(--text-gray); font-size: 14px; margin-top: 8px; }
+
+        .form-group { margin-bottom: 22px; }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group label i {
+            margin-right: 6px;
+            color: var(--primary-color);
+            width: 16px;
+            text-align: center;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--darker-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input::placeholder { color: #555; }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(249,249,0,0.1);
+        }
+
+        .form-error {
+            display: none;
+            color: #f87171;
+            font-size: 13px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(248,113,113,0.1);
+            border-radius: 8px;
+        }
+
+        .form-success {
+            display: none;
+            color: #4ade80;
+            font-size: 13px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(74,222,128,0.1);
+            border-radius: 8px;
+        }
+
+        .form-error.visible, .form-success.visible { display: block; }
+
+        .auth-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+            font-family: inherit;
+            margin-top: 8px;
+        }
+
+        .auth-btn-primary {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+        }
+
+        .auth-btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(249,249,0,0.35);
+        }
+
+        .auth-btn-primary:active { transform: scale(0.98); }
+        .auth-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .card-key-hint {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-top: 6px;
+            opacity: 0.8;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .auth-footer p { color: var(--text-gray); font-size: 14px; }
+        .auth-footer a { color: var(--primary-color); font-weight: 600; transition: color 0.3s; }
+        .auth-footer a:hover { text-shadow: 0 0 12px rgba(249,249,0,0.5); }
+
+        @media (max-width: 480px) {
+            .auth-card { padding: 35px 25px; border-radius: 20px; }
+            .auth-logo .logo-text { font-size: 36px; }
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <span class="logo-text">CYX</span>
+                <span class="logo-sub">俱乐部</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="services.html">套餐购买</a></li>
+                <li><a href="news.html">公告</a></li>
+                <li><a href="community.html">社区</a></li>
+                <li><a href="dashboard.html" class="nav-link-user" style="display:none">用户中心</a></li>
+                <li><a href="login.html" class="nav-link-login">登录</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <section class="auth-hero">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <span class="logo-text">CYX</span>
+                <span class="logo-sub">俱乐部</span>
+                <p>使用卡密注册您的账号</p>
+            </div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i>卡密</label>
+                    <input type="text" class="form-input" id="cardKey" placeholder="请输入卡密" required>
+                    <div class="card-key-hint"><i class="fas fa-info-circle"></i> 卡密由管理员发放，格式如 XXXX-XXXX-XXXX</div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i>用户名</label>
+                    <input type="text" class="form-input" id="regUsername" placeholder="请输入用户名（3-20位字符）" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i>密码</label>
+                    <input type="password" class="form-input" id="regPassword" placeholder="请输入密码（6位以上）" autocomplete="new-password" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i>确认密码</label>
+                    <input type="password" class="form-input" id="regPasswordConfirm" placeholder="请再次输入密码" autocomplete="new-password" required>
+                </div>
+                <div class="form-error" id="regError"></div>
+                <div class="form-success" id="regSuccess"></div>
+                <button type="submit" class="auth-btn auth-btn-primary" id="regBtn">
+                    <i class="fas fa-user-plus"></i> 注册
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>已有账号？<a href="login.html">立即登录</a></p>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 移动端菜单
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        if (hamburger) {
+            hamburger.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+                hamburger.classList.toggle('active');
+            });
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('regBtn');
+            const errorEl = document.getElementById('regError');
+            const successEl = document.getElementById('regSuccess');
+            hideError(errorEl);
+            successEl.style.display = 'none';
+
+            const cardKey = document.getElementById('cardKey').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+
+            // 验证
+            if (!cardKey) { showError(errorEl, '请输入卡密'); return; }
+            if (username.length < 3 || username.length > 20) { showError(errorEl, '用户名长度为3-20位字符'); return; }
+            if (password.length < 6) { showError(errorEl, '密码长度不能少于6位'); return; }
+            if (password !== passwordConfirm) { showError(errorEl, '两次输入的密码不一致'); return; }
+
+            setLoading(btn, true);
+
+            const res = await apiFetch('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ cardKey, username, password })
+            });
+
+            if (res.ok) {
+                successEl.textContent = '注册成功！即将跳转到登录页面...';
+                successEl.classList.add('visible');
+                successEl.style.display = 'block';
+                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+            } else {
+                showError(errorEl, res.data.error || '注册失败，请重试');
+            }
+            setLoading(btn, false);
+        });
+
+        // 已登录则跳转
+        (async () => {
+            const user = await checkAuth();
+            if (user) {
+                if (user.role === 'employee') window.location.href = 'employee-dashboard.html';
+                else window.location.href = 'dashboard.html';
+            }
+        })();
+    </script>
+</body>
+</html>

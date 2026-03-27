@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工中心 - CYX俱乐部</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dash-page { min-height: 100vh; display: flex; flex-direction: column; }
+
+        .dash-main {
+            flex: 1;
+            padding: 120px 20px 60px;
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+        }
+
+        .dash-container { max-width: 1000px; margin: 0 auto; }
+
+        .user-info-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.5s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-info-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+
+        .user-info-left { display: flex; align-items: center; gap: 20px; }
+
+        .user-avatar {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: var(--dark-bg); font-weight: 700;
+        }
+
+        .user-name { font-size: 22px; font-weight: 700; color: var(--text-light); }
+        .user-meta { font-size: 13px; color: var(--text-gray); margin-top: 4px; }
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(96,165,250,0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,0.3);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .btn-logout {
+            padding: 10px 24px;
+            background: transparent;
+            border: 1.5px solid #f87171;
+            color: #f87171;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-logout:hover { background: #f87171; color: #fff; transform: translateY(-2px); }
+
+        /* 状态筛选 */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .filter-btn {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border-color);
+            background: transparent;
+            color: var(--text-gray);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(249,249,0,0.2);
+        }
+
+        .filter-btn:not(.active):hover {
+            border-color: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .dash-section-title {
+            font-size: 22px;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .orders-list { animation: fadeInUp 0.7s ease both; }
+
+        .order-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .order-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .order-game { font-size: 17px; font-weight: 700; color: var(--text-light); }
+        .order-game i { color: var(--primary-color); margin-right: 8px; }
+
+        .status-badge { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
+        .status-pending { background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
+        .status-accepted { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+        .status-in_progress { background: rgba(168,85,247,0.15); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+        .status-completed { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+        .status-cancelled { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+
+        .order-body { display: flex; gap: 30px; flex-wrap: wrap; }
+        .order-detail { font-size: 14px; color: var(--text-gray); }
+        .order-detail strong { color: var(--text-light); font-weight: 500; }
+
+        .order-notes {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--darker-bg);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        .order-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-status {
+            padding: 9px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-accept { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+        .btn-accept:hover { background: #60a5fa; color: #fff; }
+
+        .btn-progress { background: rgba(168,85,247,0.15); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+        .btn-progress:hover { background: #a855f7; color: #fff; }
+
+        .btn-complete { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+        .btn-complete:hover { background: #4ade80; color: #fff; }
+
+        .btn-status:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-gray); }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; color: var(--border-color); }
+        .empty-state p { font-size: 16px; }
+
+        .loading-state { text-align: center; padding: 40px; color: var(--text-gray); }
+        .loading-state i { margin-right: 8px; }
+
+        @media (max-width: 640px) {
+            .user-info-card { flex-direction: column; align-items: flex-start; }
+            .order-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body class="dash-page">
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <span class="logo-text">CYX</span>
+                <span class="logo-sub">俱乐部</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="services.html">套餐购买</a></li>
+                <li><a href="news.html">公告</a></li>
+                <li><a href="community.html">社区</a></li>
+                <li><a href="employee-dashboard.html" class="nav-link-user">员工中心</a></li>
+                <li><a href="login.html" class="nav-link-login" style="display:none">登录</a></li>
+            </ul>
+            <div class="hamburger"><span></span><span></span><span></span></div>
+        </nav>
+    </header>
+
+    <main class="dash-main">
+        <div class="dash-container">
+            <!-- 员工信息 -->
+            <div class="user-info-card">
+                <div class="user-info-left">
+                    <div class="user-avatar" id="empAvatar">E</div>
+                    <div>
+                        <div class="user-name" id="empName">加载中...</div>
+                        <div class="user-meta" id="empMeta"></div>
+                        <span class="role-badge"><i class="fas fa-user-tie"></i> 员工</span>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                </button>
+            </div>
+
+            <!-- 状态筛选 -->
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="accepted">已接单</button>
+                <button class="filter-btn" data-filter="in_progress">进行中</button>
+                <button class="filter-btn" data-filter="completed">已完成</button>
+            </div>
+
+            <h2 class="dash-section-title"><i class="fas fa-tasks"></i> 我的任务</h2>
+
+            <!-- 订单列表 -->
+            <div class="orders-list" id="ordersList">
+                <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> 加载任务中...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-text">CYX</span>
+                    <span class="logo-sub">俱乐部</span>
+                </div>
+                <p class="footer-desc">专业游戏代练托管平台</p>
+                <p class="footer-copyright">© 2026 CYX俱乐部. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const STATUS_MAP = {
+            pending: '待处理',
+            accepted: '已接单',
+            in_progress: '进行中',
+            completed: '已完成',
+            cancelled: '已取消'
+        };
+
+        let allOrders = [];
+        let currentFilter = 'all';
+
+        (async () => {
+            const user = await checkAuth();
+            if (!user) { window.location.href = 'login.html'; return; }
+            if (user.role !== 'employee') {
+                window.location.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+                return;
+            }
+
+            document.getElementById('empName').textContent = user.username;
+            document.getElementById('empAvatar').textContent = user.username.charAt(0).toUpperCase();
+            document.getElementById('empMeta').textContent = `工号: ${user.id || '未知'}`;
+
+            loadOrders();
+
+            // 筛选
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderOrders();
+                });
+            });
+
+            // 移动端菜单
+            const hamburger = document.querySelector('.hamburger');
+            const navLinks = document.querySelector('.nav-links');
+            if (hamburger) {
+                hamburger.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    hamburger.classList.toggle('active');
+                });
+            }
+        })();
+
+        async function loadOrders() {
+            const res = await apiFetch('/orders/assigned');
+            if (res.ok) {
+                allOrders = res.data.orders || res.data || [];
+                renderOrders();
+            } else {
+                document.getElementById('ordersList').innerHTML =
+                    '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载任务失败</p></div>';
+            }
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('ordersList');
+            const filtered = currentFilter === 'all'
+                ? allOrders
+                : allOrders.filter(o => o.status === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无相关任务</p></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(o => {
+                let actions = '';
+                if (o.status === 'accepted') {
+                    actions = `<button class="btn-status btn-progress" onclick="updateStatus(${o.id}, 'in_progress')">
+                        <i class="fas fa-play"></i> 开始处理
+                    </button>`;
+                } else if (o.status === 'in_progress') {
+                    actions = `<button class="btn-status btn-complete" onclick="updateStatus(${o.id}, 'completed')">
+                        <i class="fas fa-check"></i> 标记完成
+                    </button>`;
+                }
+
+                return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-game"><i class="fas fa-gamepad"></i> ${o.game} - ${o.service_type}</span>
+                        <span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span>
+                    </div>
+                    <div class="order-body">
+                        <span class="order-detail"><strong>订单号:</strong> #${o.id}</span>
+                        <span class="order-detail"><strong>客户:</strong> ${o.user_name || '未知'}</span>
+                        <span class="order-detail"><strong>创建时间:</strong> ${new Date(o.created_at).toLocaleString('zh-CN')}</span>
+                    </div>
+                    ${o.details ? `<div class="order-notes">${o.details}</div>` : ''}
+                    ${actions ? `<div class="order-actions">${actions}</div>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            const btn = event.target.closest('.btn-status');
+            if (btn) btn.disabled = true;
+
+            const res = await apiFetch(`/orders/${orderId}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (res.ok) {
+                // 更新本地数据
+                const idx = allOrders.findIndex(o => o.id === orderId);
+                if (idx !== -1) allOrders[idx].status = newStatus;
+                renderOrders();
+            } else {
+                alert(res.data.error || '更新状态失败');
+                if (btn) btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

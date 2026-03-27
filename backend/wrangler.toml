@@ -1,0 +1,16 @@
+name = "cyx-club-backend"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cyx-club-db"
+database_id = "YOUR_D1_DATABASE_ID"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "YOUR_KV_NAMESPACE_ID"
+
+[vars]
+ENVIRONMENT = "production"
+ALLOWED_ORIGINS = "https://cyx-club.pages.dev,http://localhost:5173,http://localhost:3000"
