@@ -1,4 +1,5 @@
 ﻿const SALT = "cyxclub_salt_2026";
+let ORIGIN = "https://cyxclub.top";
 
 async function hashPwd(p) {
   const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(p + SALT));
@@ -18,7 +19,7 @@ async function getSession(kv,t){if(!t)return null;const r=await kv.get(t);if(!r)
 function getToken(r){const c=r.headers.get("Cookie");if(!c)return null;for(const x of c.split(";")){const[i,...v]=x.trim().split("=");if(i==="cyx_session")return v.join("=");}return null;}
 function setCookie(t){return "cyx_session="+t+"; Path=/; Max-Age=604800; HttpOnly; SameSite=Lax; Secure";}
 function clearCookie(){return "cyx_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax; Secure";}
-function j(d,s){return new Response(JSON.stringify(d),{status:s||200,headers:{"Content-Type":"application/json","Access-Control-Allow-Origin":"https://cyxclub.top","Access-Control-Allow-Credentials":"true"}});}
+function j(d,s){return new Response(JSON.stringify(d),{status:s||200,headers:{"Content-Type":"application/json","Access-Control-Allow-Origin":ORIGIN,"Access-Control-Allow-Credentials":"true"}});}
 function ok(d){return j({success:true,data:d});}
 function err(m,s){return j({success:false,error:m},s||400);}
 
@@ -29,10 +30,12 @@ export default {
     const method = request.method;
     const db = env.cyxclub_db;
     const kv = env.SESSIONS;
+    const reqOrigin = request.headers.get("Origin") || "";
+    ORIGIN = ["https://cyxclub.top","https://admin.cyxclub.top","https://cyxclub.pages.dev","http://localhost:5173","http://localhost:3000"].includes(reqOrigin) ? reqOrigin : "https://cyxclub.top";
 
     if (method === "OPTIONS") {
       const o=request.headers.get("Origin")||"";
-      const allowed=["https://cyxclub.top","https://cyxclub.pages.dev","http://localhost:5173","http://localhost:3000"];
+      const allowed=["https://cyxclub.top","https://admin.cyxclub.top","https://cyxclub.pages.dev","http://localhost:5173","http://localhost:3000"];
       return new Response(null,{status:204,headers:{"Access-Control-Allow-Origin":allowed.includes(o)?o:"https://cyxclub.top","Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type","Access-Control-Allow-Credentials":"true","Access-Control-Max-Age":"86400"}});
     }
     if (path === "/" || path === "") return j({service:"CYX Club API",status:"running"});
@@ -108,10 +111,16 @@ export default {
         if((m=ap.match(/^\/workers\/([a-z0-9_]+)$/))){const id=m[1];if(method==="PUT"){const b=await request.json();if(b.password){await db.prepare("UPDATE workers SET password_hash=?,name=COALESCE(?,name),status=COALESCE(?,status),updated_at=? WHERE id=?").bind(await hashPwd(b.password),b.name,b.status,now(),id).run();}else{await db.prepare("UPDATE workers SET name=COALESCE(?,name),status=COALESCE(?,status),updated_at=? WHERE id=?").bind(b.name,b.status,now(),id).run();}return ok({id});}if(method==="DELETE"){await db.prepare("DELETE FROM workers WHERE id=?").bind(id).run();return ok({});}}
 
         if(ap==="/orders"&&method==="GET"){return ok((await db.prepare("SELECT o.*,w.name as worker_name FROM orders o LEFT JOIN workers w ON o.worker_id=w.id ORDER BY o.created_at DESC").all()).results);}
-        if(ap==="/orders"&&method==="POST"){const b=await request.json();if(!b.game||!b.password)return err("game and password required");const d=new Date();const mm=String(d.getMonth()+1).padStart(2,"0");const dd=String(d.getDate()).padStart(2,"0");const dk=""+d.getFullYear()+mm+dd;const ds=mm+dd;const pc=(b.product_code||"GEN").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,3).padEnd(3,"X");await db.prepare("INSERT OR IGNORE INTO order_counter(date_key,counter) VALUES(?,0)").bind(dk).run();const ctr=await db.prepare("UPDATE order_counter SET counter=counter+1 WHERE date_key=? RETURNING counter").bind(dk).first();const seq=ctr?ctr.counter:1;const vc=genOrderVC(ds,seq);const orderNo="CYX"+ds+pc+"-"+vc+String(seq).padStart(2,"0");const id=genId("o");await db.prepare("INSERT INTO orders(id,order_no,worker_id,status,game,service_type,price,user_password,user_note,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(id,orderNo,b.worker_id||null,"pending",b.game,parseInt(b.service_type)||1,parseInt(b.price)||0,await hashPwd(b.password),b.user_note||null,now(),now()).run();return ok({order_no:orderNo,password:b.password,id});}
+        if(ap==="/orders"&&method==="POST"){const b=await request.json();if(!b.game||!b.password)return err("game and password required");const d=new Date();const mm=String(d.getMonth()+1).padStart(2,"0");const dd=String(d.getDate()).padStart(2,"0");const dk=""+d.getFullYear()+mm+dd;const ds=mm+dd;const pc=(b.product_code||"GEN").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,3).padEnd(3,"X");await db.prepare("INSERT OR IGNORE INTO order_counter(date_key,counter) VALUES(?,0)").bind(dk).run();const ctr=await db.prepare("UPDATE order_counter SET counter=counter+1 WHERE date_key=? RETURNING counter").bind(dk).first();const seq=ctr?ctr.counter:1;const vc=genOrderVC(ds,seq);const uid=b.user_id||0;const uidStr=String(uid).padStart(3,"0");const orderNo="CYX"+ds+pc+"-"+uidStr+"-"+vc+String(seq).padStart(2,"0");const id=genId("o");await db.prepare("INSERT INTO orders(id,order_no,user_id,worker_id,status,game,service_type,price,user_password,user_note,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)").bind(id,orderNo,uid,b.worker_id||null,"pending",b.game,parseInt(b.service_type)||1,parseInt(b.price)||0,await hashPwd(b.password),b.user_note||null,now(),now()).run();return ok({order_no:orderNo,password:b.password,id});}
         if((m=ap.match(/^\/orders\/([a-z0-9_]+)$/))){const id=m[1];if(method==="PUT"){const b=await request.json();await db.prepare("UPDATE orders SET status=COALESCE(?,status),worker_id=COALESCE(?,worker_id),updated_at=? WHERE id=?").bind(b.status,b.worker_id,now(),id).run();return ok({id});}if(method==="DELETE"){await db.prepare("DELETE FROM orders WHERE id=?").bind(id).run();return ok({});}}
 
         if(ap==="/products"&&method==="GET"){return ok((await db.prepare("SELECT * FROM products ORDER BY id").all()).results);}
+
+        // Users
+        if(ap==="/users"&&method==="GET"){return ok((await db.prepare("SELECT id,username,created_at FROM users ORDER BY id DESC").all()).results);}
+        if(ap==="/users"&&method==="POST"){const b=await request.json();if(!b.username||!b.password)return err("username and password required");const ex=await db.prepare("SELECT id FROM users WHERE username=?").bind(b.username).first();if(ex)return err("username taken");const h=await hashPwd(b.password);await db.prepare("INSERT INTO users(username,password_hash,created_at) VALUES(?,?,?)").bind(b.username,h,now()).run();const u=await db.prepare("SELECT id FROM users WHERE username=?").bind(b.username).first();return ok({id:u.id,username:b.username});}
+        if((m=ap.match(/^\/users\/(\d+)$/))){const uid=parseInt(m[1]);if(method==="DELETE"){await db.prepare("DELETE FROM users WHERE id=?").bind(uid).run();return ok({});}}
+
         return err("not found",404);
       }
 
