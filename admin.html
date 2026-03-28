@@ -446,13 +446,6 @@
                                 <option value="">请选择用户</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>打手</label>
-                            <select class="form-select" id="orderWorker">
-                                <option value="">请选择打手</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label>商品</label>
                             <select class="form-select" id="orderProduct">
                                 <option value="GEN">通用</option>
@@ -687,7 +680,6 @@
                 product_code: product,
                 user_id: parseInt(userId)
             };
-            if (workerId) body.worker_id = workerId;
 
             const res = await apiFetch('/admin/orders', {
                 method: 'POST',
