@@ -652,21 +652,12 @@
                 opt.textContent = u.username + ' (#' + u.id + ')';
                 uSel.appendChild(opt);
             });
-            // Load workers
-            const wRes = await apiFetch('/admin/workers');
-            const wSel = document.getElementById('orderWorker');
-            wSel.innerHTML = '<option value="">请选择打手</option>';
-            if (wRes.ok) (wRes.data.data||[]).forEach(w => {
                 const opt = document.createElement('option');
-                opt.value = w.id;
-                opt.textContent = w.name;
-                wSel.appendChild(opt);
             });
         }
 
         async function generateOrder() {
             const userId = document.getElementById('orderUser').value;
-            const workerId = document.getElementById('orderWorker').value;
             const product = document.getElementById('orderProduct').value;
             const password = document.getElementById('orderPwd').value.trim();
             if (!userId) { showToast('请选择用户', true); return; }
