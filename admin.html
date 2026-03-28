@@ -442,6 +442,19 @@
                     </div>
                 </div>
 
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-clipboard-list"></i> 全部订单</h3>
+                        <button class="btn-action btn-outline" onclick="loadAllOrders()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="table-wrap" id="ordersTableWrap">
+                        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="tab-panel" id="tab-employees">
                 <div class="admin-panel">
                     <div class="panel-header">
