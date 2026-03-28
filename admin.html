@@ -576,11 +576,11 @@
             if (res.ok) {
                 const products = res.data || [];
                 const select = document.getElementById('userProductCode');
-                select.innerHTML = '<option value="GEN">通用 (GEN)</option>';
+                select.innerHTML = '<option value="GEN">通用</option>';
                 products.forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p.code;
-                    opt.textContent = p.name + ' (' + p.code + ')';
+                    opt.textContent = p.code + ' - ' + p.name;
                     select.appendChild(opt);
                 });
             }
