@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - CYX俱乐部</title>
+    <title>员工登录 - CYX俱乐部</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -286,27 +286,26 @@
             <div class="auth-logo">
                 <span class="logo-text">CYX</span>
                 <span class="logo-sub">俱乐部</span>
-                <p>欢迎回来，请登录您的账号</p>
+                <p>员工/管理员登录</p>
             </div>
 
-            <!-- 用户登录表单 -->
-            <form class="auth-form active" id="userLoginForm">
+            <form class="auth-form active" id="empLoginForm">
                 <div class="form-group">
-                    <label><i class="fas fa-hashtag"></i> 订单号</label>
-                    <input type="text" class="form-input" id="userUsername" placeholder="例：CYX0328YS-A3B401" autocomplete="username" required>
+                    <label><i class="fas fa-user-tie"></i> 账号</label>
+                    <input type="text" class="form-input" id="empUsername" placeholder="请输入员工账号" autocomplete="username" required>
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-lock"></i>密码</label>
-                    <input type="password" class="form-input" id="userPassword" placeholder="请输入密码" autocomplete="current-password" required>
+                    <input type="password" class="form-input" id="empPassword" placeholder="请输入密码" autocomplete="current-password" required>
                 </div>
-                <div class="form-error" id="userError"></div>
-                <button type="submit" class="auth-btn auth-btn-primary" id="userLoginBtn">
+                <div class="form-error" id="empError"></div>
+                <button type="submit" class="auth-btn auth-btn-primary" id="empLoginBtn">
                     <i class="fas fa-sign-in-alt"></i> 登录
                 </button>
             </form>
 
             <div class="auth-footer">
-                <p>订单号由管理员生成，请联系客服获取</p>
+                <p>仅限内部员工使用</p>
             </div>
         </div>
     </section>
@@ -323,33 +322,35 @@
             });
         }
 
-        // 用户登录
-        document.getElementById('userLoginForm').addEventListener('submit', async (e) => {
+        // 员工/管理员登录
+        document.getElementById('empLoginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('userLoginBtn');
-            const errorEl = document.getElementById('userError');
+            const btn = document.getElementById('empLoginBtn');
+            const errorEl = document.getElementById('empError');
             hideError(errorEl);
             setLoading(btn, true);
 
-            const username = document.getElementById('userUsername').value.trim();
-            const password = document.getElementById('userPassword').value;
+            const username = document.getElementById('empUsername').value.trim();
+            const password = document.getElementById('empPassword').value;
 
             if (!username || !password) {
-                showError(errorEl, '请填写订单号和密码');
+                showError(errorEl, '请填写账号和密码');
                 setLoading(btn, false);
                 return;
             }
 
             const res = await apiFetch('/auth/login', {
                 method: 'POST',
-                body: JSON.stringify({ username, password, role: 'user' })
+                body: JSON.stringify({ username, password, role: 'employee' })
             });
 
             if (res.ok && res.data.data && res.data.data.user) {
-                sessionStorage.setItem('cyx_user', JSON.stringify(res.data.data.user));
-                window.location.href = 'dashboard.html';
+                const user = res.data.data.user;
+                sessionStorage.setItem('cyx_user', JSON.stringify(user));
+                if (user.role === 'admin') window.location.href = 'admin.html';
+                else window.location.href = 'employee-dashboard.html';
             } else {
-                showError(errorEl, res.data.data?.error || res.data.error || '登录失败，请检查订单号和密码');
+                showError(errorEl, res.data.data?.error || res.data.error || '登录失败，请检查账号密码');
             }
             setLoading(btn, false);
         });
@@ -357,7 +358,9 @@
         // 已登录则跳转
         (async () => {
             const user = await checkAuth();
-            if (user && user.role === 'user') window.location.href = 'dashboard.html';
+            if (user && (user.role === 'admin' || user.role === 'employee')) {
+                window.location.href = user.role === 'admin' ? 'admin.html' : 'employee-dashboard.html';
+            }
         })();
     </script>
 </body>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -227,7 +227,7 @@
                 <li><a href="news.html">公告</a></li>
                 <li><a href="community.html">社区</a></li>
                 <li><a href="employee-dashboard.html" class="nav-link-user">员工中心</a></li>
-                <li><a href="login.html" class="nav-link-login" style="display:none">登录</a></li>
+                <li><a href="admin-login.html" class="nav-link-login" style="display:none">登录</a></li>
             </ul>
             <div class="hamburger"><span></span><span></span><span></span></div>
         </nav>
@@ -295,7 +295,7 @@
 
         (async () => {
             const user = await checkAuth();
-            if (!user) { window.location.href = 'login.html'; return; }
+            if (!user) { window.location.href = 'admin-login.html'; return; }
             if (user.role !== 'employee') {
                 window.location.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
                 return;
