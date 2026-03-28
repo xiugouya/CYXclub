@@ -398,42 +398,7 @@
                         <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 公告管理 -->
-            <div class="tab-panel" id="tab-announcements">
-                <div class="admin-panel">
-                    <div class="panel-header">
-                        <h3 class="panel-title"><i class="fas fa-bullhorn"></i> 发布公告</h3>
-                    </div>
-                    <div class="inline-form" style="flex-wrap:wrap;">
-                        <div class="form-group" style="min-width:200px;">
-                            <label>标题</label>
-                            <input type="text" class="form-input" id="annTitle" placeholder="公告标题">
-                        </div>
-                        <div class="form-group" style="min-width:300px;">
-                            <label>内容</label>
-                            <input type="text" class="form-input" id="annContent" placeholder="公告内容">
-                        </div>
-                        <button class="btn-action btn-yellow" onclick="createAnnouncement()">
-                            <i class="fas fa-paper-plane"></i> 发布
-                        </button>
-                    </div>
-                </div>
-                <div class="admin-panel">
-                    <div class="panel-header">
-                        <h3 class="panel-title"><i class="fas fa-list"></i> 公告列表</h3>
-                        <button class="btn-action btn-outline" onclick="loadAnnouncements()">
-                            <i class="fas fa-sync"></i> 刷新
-                        </button>
-                    </div>
-                    <div class="table-wrap" id="annTableWrap">
-                        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 订单管理 -->
             <div class="tab-panel" id="tab-orders">
                 <div class="admin-panel">
                     <div class="panel-header">
@@ -476,20 +441,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="admin-panel">
-                    <div class="panel-header">
-                        <h3 class="panel-title"><i class="fas fa-clipboard-list"></i> 全部订单</h3>
-                        <button class="btn-action btn-outline" onclick="loadAllOrders()">
-                            <i class="fas fa-sync"></i> 刷新
-                        </button>
-                    </div>
-                    <div class="table-wrap" id="ordersTableWrap">
-                        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- 员工管理 -->
             <div class="tab-panel" id="tab-employees">
                 <div class="admin-panel">
                     <div class="panel-header">
@@ -521,9 +473,38 @@
                         <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
                     </div>
                 </div>
+
+            <div class="tab-panel" id="tab-announcements">
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-bullhorn"></i> 发布公告</h3>
+                    </div>
+                    <div class="inline-form" style="flex-wrap:wrap;">
+                        <div class="form-group" style="min-width:200px;">
+                            <label>标题</label>
+                            <input type="text" class="form-input" id="annTitle" placeholder="公告标题">
+                        </div>
+                        <div class="form-group" style="min-width:300px;">
+                            <label>内容</label>
+                            <input type="text" class="form-input" id="annContent" placeholder="公告内容">
+                        </div>
+                        <button class="btn-action btn-yellow" onclick="createAnnouncement()">
+                            <i class="fas fa-paper-plane"></i> 发布
+                        </button>
+                    </div>
+                </div>
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-list"></i> 公告列表</h3>
+                        <button class="btn-action btn-outline" onclick="loadAnnouncements()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="table-wrap" id="annTableWrap">
+                        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
 
     <footer>
         <div class="container">
