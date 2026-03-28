@@ -74,6 +74,9 @@ export default {
         r.headers.set("Set-Cookie",setCookie(t));return r;
       }
 
+      // PUBLIC products
+      if(path==="/api/products"&&method==="GET"){return ok((await db.prepare("SELECT * FROM products ORDER BY id").all()).results);}
+
       // AUTH (needs session)
       if(path==="/api/auth/logout"&&method==="POST"){const t=getToken(request);if(t)await kv.delete(t);const r=ok({message:"logged out"});r.headers.set("Set-Cookie",clearCookie());return r;}
       if(path==="/api/auth/me"&&method==="GET"){const t=getToken(request);if(!t)return err("not logged in",401);const s=await getSession(kv,t);if(!s)return err("session expired",401);return ok({userId:s.user_id,username:s.username,role:s.role});}
@@ -108,6 +111,7 @@ export default {
         if(ap==="/orders"&&method==="POST"){const b=await request.json();if(!b.game||!b.password)return err("game and password required");const d=new Date();const mm=String(d.getMonth()+1).padStart(2,"0");const dd=String(d.getDate()).padStart(2,"0");const dk=""+d.getFullYear()+mm+dd;const ds=mm+dd;const pc=(b.product_code||"GEN").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,3).padEnd(3,"X");await db.prepare("INSERT OR IGNORE INTO order_counter(date_key,counter) VALUES(?,0)").bind(dk).run();const ctr=await db.prepare("UPDATE order_counter SET counter=counter+1 WHERE date_key=? RETURNING counter").bind(dk).first();const seq=ctr?ctr.counter:1;const vc=genOrderVC(ds,seq);const orderNo="CYX"+ds+pc+"-"+vc+String(seq).padStart(2,"0");const id=genId("o");await db.prepare("INSERT INTO orders(id,order_no,worker_id,status,game,service_type,price,user_password,user_note,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)").bind(id,orderNo,b.worker_id||null,"pending",b.game,parseInt(b.service_type)||1,parseInt(b.price)||0,await hashPwd(b.password),b.user_note||null,now(),now()).run();return ok({order_no:orderNo,password:b.password,id});}
         if((m=ap.match(/^\/orders\/([a-z0-9_]+)$/))){const id=m[1];if(method==="PUT"){const b=await request.json();await db.prepare("UPDATE orders SET status=COALESCE(?,status),worker_id=COALESCE(?,worker_id),updated_at=? WHERE id=?").bind(b.status,b.worker_id,now(),id).run();return ok({id});}if(method==="DELETE"){await db.prepare("DELETE FROM orders WHERE id=?").bind(id).run();return ok({});}}
 
+        if(ap==="/products"&&method==="GET"){return ok((await db.prepare("SELECT * FROM products ORDER BY id").all()).results);}
         return err("not found",404);
       }
 

@@ -380,16 +380,9 @@
                     </div>
                     <div class="inline-form" id="createUserForm">
                         <div class="form-group">
-                            <label>商品编号</label>
+                            <label>商品</label>
                             <select class="form-select" id="userProductCode">
                                 <option value="GEN">通用 (GEN)</option>
-                                <option value="YS">原神 (YS)</option>
-                                <option value="BH">崩铁 (BH)</option>
-                                <option value="JZL">绝区零 (JZL)</option>
-                                <option value="ZMD">终末地 (ZMD)</option>
-                                <option value="SJZ">三角洲 (SJZ)</option>
-                                <option value="WZY">王者荣耀 (WZY)</option>
-                                <option value="WWJY">无畏契约 (WWJY)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -536,6 +529,7 @@
             }
             loadStats();
             loadUsers();
+            loadProducts();
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -574,6 +568,21 @@
                 document.getElementById('statWorkers').textContent = s.workers ?? '—';
                 document.getElementById('statOrders').textContent = s.orders?.total ?? '—';
                 document.getElementById('statPending').textContent = s.orders?.pending ?? '—';
+            }
+        }
+
+        async function loadProducts() {
+            const res = await apiFetch('/products');
+            if (res.ok) {
+                const products = res.data || [];
+                const select = document.getElementById('userProductCode');
+                select.innerHTML = '<option value="GEN">通用 (GEN)</option>';
+                products.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.code;
+                    opt.textContent = p.name + ' (' + p.code + ')';
+                    select.appendChild(opt);
+                });
             }
         }
 
