@@ -1,7 +1,7 @@
 // CYX俱乐部 - 认证模块
 const API_BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:8787/api'
-  : '/api';
+  : 'https://cyxclub-api.3604596288.workers.dev/api';
 
 /**
  * 通用 API 请求封装
