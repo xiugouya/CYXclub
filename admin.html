@@ -447,6 +447,12 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label>打手</label>
+                            <select class="form-select" id="orderWorker">
+                                <option value="">请选择打手</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label>商品</label>
                             <select class="form-select" id="orderProduct">
                                 <option value="GEN">通用</option>
@@ -563,7 +569,7 @@
                     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
                     btn.classList.add('active');
                     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-                    if (btn.dataset.tab === 'orders') loadAllOrders();
+                    if (btn.dataset.tab === 'orders') { loadAllOrders(); loadOrderForm(); }
                     if (btn.dataset.tab === 'employees') loadEmployees();
                     if (btn.dataset.tab === 'announcements') loadAnnouncements();
                 });
@@ -641,23 +647,50 @@
         }
 
         // === 订单管理 ===
+        async function loadOrderForm() {
+            // Load users
+            const uRes = await apiFetch('/admin/users');
+            const uSel = document.getElementById('orderUser');
+            uSel.innerHTML = '<option value="">请选择用户</option>';
+            if (uRes.ok) (uRes.data.data||[]).forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = u.username + ' (#' + u.id + ')';
+                uSel.appendChild(opt);
+            });
+            // Load workers
+            const wRes = await apiFetch('/admin/workers');
+            const wSel = document.getElementById('orderWorker');
+            wSel.innerHTML = '<option value="">请选择打手</option>';
+            if (wRes.ok) (wRes.data.data||[]).forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w.id;
+                opt.textContent = w.name;
+                wSel.appendChild(opt);
+            });
+        }
+
         async function generateOrder() {
             const userId = document.getElementById('orderUser').value;
+            const workerId = document.getElementById('orderWorker').value;
             const product = document.getElementById('orderProduct').value;
             const password = document.getElementById('orderPwd').value.trim();
             if (!userId) { showToast('请选择用户', true); return; }
             if (!password) { showToast('请填写密码', true); return; }
 
             const gameMap = {GEN:'通用',YSNB:'原神',XQTD:'崩铁',JQLX:'绝区零',ZMDX:'终末地',SJZX:'三角洲',WZRY:'王者荣耀',WWQY:'无畏契约'};
+            const body = {
+                game: gameMap[product] || '通用',
+                service_type: 1,
+                password,
+                product_code: product,
+                user_id: parseInt(userId)
+            };
+            if (workerId) body.worker_id = workerId;
+
             const res = await apiFetch('/admin/orders', {
                 method: 'POST',
-                body: JSON.stringify({
-                    game: gameMap[product] || '通用',
-                    service_type: 1,
-                    password,
-                    product_code: product,
-                    user_id: parseInt(userId)
-                })
+                body: JSON.stringify(body)
             });
 
             if (res.ok) {
@@ -688,7 +721,7 @@
                     <td>${o.user_id || '—'}</td>
                     <td>${o.game}</td>
                     <td><span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span></td>
-                    <td>${o.worker_name || '未分配'}</td>
+                    <td>${o.worker_name || '—'}</td>
                     <td>${o.created_at ? new Date(o.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
                 </tr>`).join('')}</tbody></table>`;
         }
