@@ -358,44 +358,98 @@
 
             <!-- 统计概览 -->
             <div class="stats-grid" id="statsGrid">
-                <div class="stat-card"><i class="fas fa-users"></i><div class="stat-number" id="statUsers">—</div><div class="stat-label">注册用户</div></div>
-                <div class="stat-card"><i class="fas fa-user-tie"></i><div class="stat-number" id="statEmployees">—</div><div class="stat-label">员工数量</div></div>
+                <div class="stat-card"><i class="fas fa-eye"></i><div class="stat-number" id="statVisits">—</div><div class="stat-label">总访问量</div></div>
+                <div class="stat-card"><i class="fas fa-user-tie"></i><div class="stat-number" id="statWorkers">—</div><div class="stat-label">员工数量</div></div>
                 <div class="stat-card"><i class="fas fa-clipboard-list"></i><div class="stat-number" id="statOrders">—</div><div class="stat-label">总订单数</div></div>
-                <div class="stat-card"><i class="fas fa-key"></i><div class="stat-number" id="statKeys">—</div><div class="stat-label">卡密总数</div></div>
+                <div class="stat-card"><i class="fas fa-clock"></i><div class="stat-number" id="statPending">—</div><div class="stat-label">待处理订单</div></div>
             </div>
 
             <!-- 标签页 -->
             <div class="tab-bar">
-                <button class="tab-btn active" data-tab="keys"><i class="fas fa-key"></i> 卡密管理</button>
+                <button class="tab-btn active" data-tab="users"><i class="fas fa-user-plus"></i> 用户管理</button>
                 <button class="tab-btn" data-tab="orders"><i class="fas fa-clipboard-list"></i> 订单管理</button>
                 <button class="tab-btn" data-tab="employees"><i class="fas fa-user-tie"></i> 员工管理</button>
+                <button class="tab-btn" data-tab="announcements"><i class="fas fa-bullhorn"></i> 公告管理</button>
             </div>
 
-            <!-- 卡密管理 -->
-            <div class="tab-panel active" id="tab-keys">
+            <!-- 用户管理（订单号生成） -->
+            <div class="tab-panel active" id="tab-users">
                 <div class="admin-panel">
                     <div class="panel-header">
-                        <h3 class="panel-title"><i class="fas fa-plus-circle"></i> 生成卡密</h3>
+                        <h3 class="panel-title"><i class="fas fa-user-plus"></i> 创建用户账号（生成订单号）</h3>
                     </div>
-                    <div class="inline-form">
+                    <div class="inline-form" id="createUserForm">
                         <div class="form-group">
-                            <label>生成数量</label>
-                            <input type="number" class="form-input" id="keyCount" value="5" min="1" max="100">
+                            <label>商品编号</label>
+                            <select class="form-select" id="userProductCode">
+                                <option value="GEN">通用 (GEN)</option>
+                                <option value="YS">原神 (YS)</option>
+                                <option value="BH">崩铁 (BH)</option>
+                                <option value="JZL">绝区零 (JZL)</option>
+                                <option value="ZMD">终末地 (ZMD)</option>
+                                <option value="SJZ">三角洲 (SJZ)</option>
+                                <option value="WZY">王者荣耀 (WZY)</option>
+                                <option value="WWJY">无畏契约 (WWJY)</option>
+                            </select>
                         </div>
-                        <button class="btn-action btn-yellow" onclick="generateKeys()">
-                            <i class="fas fa-magic"></i> 生成
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="text" class="form-input" id="userPassword" placeholder="用户登录密码">
+                        </div>
+                        <button class="btn-action btn-yellow" onclick="createUser()">
+                            <i class="fas fa-magic"></i> 生成订单号
                         </button>
+                    </div>
+                    <div id="newUserResult" style="display:none; margin-top:16px; padding:16px; background:var(--darker-bg); border-radius:12px; border:1px solid var(--border-color);">
+                        <div style="font-size:13px; color:var(--text-gray); margin-bottom:8px;">生成结果：</div>
+                        <div style="font-size:14px; color:var(--text-light);">
+                            <strong>订单号：</strong><span id="resultOrderNumber" style="font-family:monospace; color:var(--primary-color); font-size:16px;"></span>
+                            <br><strong>密码：</strong><span id="resultPassword" style="font-family:monospace;"></span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="admin-panel">
                     <div class="panel-header">
-                        <h3 class="panel-title"><i class="fas fa-list"></i> 卡密列表</h3>
-                        <button class="btn-action btn-outline" onclick="loadCardKeys()">
+                        <h3 class="panel-title"><i class="fas fa-users"></i> 用户列表</h3>
+                        <button class="btn-action btn-outline" onclick="loadUsers()">
                             <i class="fas fa-sync"></i> 刷新
                         </button>
                     </div>
-                    <div class="table-wrap" id="keysTableWrap">
+                    <div class="table-wrap" id="usersTableWrap">
+                        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 公告管理 -->
+            <div class="tab-panel" id="tab-announcements">
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-bullhorn"></i> 发布公告</h3>
+                    </div>
+                    <div class="inline-form" style="flex-wrap:wrap;">
+                        <div class="form-group" style="min-width:200px;">
+                            <label>标题</label>
+                            <input type="text" class="form-input" id="annTitle" placeholder="公告标题">
+                        </div>
+                        <div class="form-group" style="min-width:300px;">
+                            <label>内容</label>
+                            <input type="text" class="form-input" id="annContent" placeholder="公告内容">
+                        </div>
+                        <button class="btn-action btn-yellow" onclick="createAnnouncement()">
+                            <i class="fas fa-paper-plane"></i> 发布
+                        </button>
+                    </div>
+                </div>
+                <div class="admin-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title"><i class="fas fa-list"></i> 公告列表</h3>
+                        <button class="btn-action btn-outline" onclick="loadAnnouncements()">
+                            <i class="fas fa-sync"></i> 刷新
+                        </button>
+                    </div>
+                    <div class="table-wrap" id="annTableWrap">
                         <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>
                     </div>
                 </div>
@@ -424,8 +478,8 @@
                     </div>
                     <div class="inline-form" id="createEmpForm">
                         <div class="form-group">
-                            <label>用户名</label>
-                            <input type="text" class="form-input" id="empUsername" placeholder="员工用户名">
+                            <label>员工名称</label>
+                            <input type="text" class="form-input" id="empUsername" placeholder="员工名称">
                         </div>
                         <div class="form-group">
                             <label>密码</label>
@@ -468,9 +522,10 @@
     <script src="js/auth.js"></script>
     <script>
         const STATUS_MAP = {
-            pending: '待处理', accepted: '已接单', in_progress: '进行中',
+            pending: '待处理', in_progress: '进行中',
             completed: '已完成', cancelled: '已取消'
         };
+        const SERVICE_MAP = { 1: '日卡', 2: '周卡', 3: '月卡' };
 
         (async () => {
             const user = await checkAuth();
@@ -479,25 +534,21 @@
                 window.location.href = user.role === 'employee' ? 'employee-dashboard.html' : 'dashboard.html';
                 return;
             }
-
             loadStats();
-            loadCardKeys();
+            loadUsers();
 
-            // 标签页切换
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
                     btn.classList.add('active');
                     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-
-                    // 懒加载
                     if (btn.dataset.tab === 'orders') loadAllOrders();
                     if (btn.dataset.tab === 'employees') loadEmployees();
+                    if (btn.dataset.tab === 'announcements') loadAnnouncements();
                 });
             });
 
-            // 移动端菜单
             const hamburger = document.querySelector('.hamburger');
             const navLinks = document.querySelector('.nav-links');
             if (hamburger) {
@@ -512,143 +563,159 @@
             const toast = document.getElementById('toast');
             toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
             toast.className = 'toast visible' + (isError ? ' error' : '');
-            setTimeout(() => { toast.classList.remove('visible'); }, 3000);
+            setTimeout(() => toast.classList.remove('visible'), 3000);
         }
 
-        // 统计
         async function loadStats() {
             const res = await apiFetch('/admin/stats');
             if (res.ok) {
                 const s = res.data;
-                document.getElementById('statUsers').textContent = s.users ?? s.totalUsers ?? '—';
-                document.getElementById('statEmployees').textContent = s.employees ?? s.totalEmployees ?? '—';
-                document.getElementById('statOrders').textContent = s.orders ?? s.totalOrders ?? '—';
-                document.getElementById('statKeys').textContent = s.cardKeys ?? s.totalKeys ?? '—';
+                document.getElementById('statVisits').textContent = s.visits ?? '—';
+                document.getElementById('statWorkers').textContent = s.workers ?? '—';
+                document.getElementById('statOrders').textContent = s.orders?.total ?? '—';
+                document.getElementById('statPending').textContent = s.orders?.pending ?? '—';
             }
         }
 
-        // 卡密
-        async function generateKeys() {
-            const count = parseInt(document.getElementById('keyCount').value) || 1;
-            if (count < 1 || count > 100) { showToast('数量范围: 1-100', true); return; }
+        // === 用户管理（创建订单/用户账号） ===
+        async function createUser() {
+            const game = document.getElementById('userProductCode');
+            const password = document.getElementById('userPassword').value.trim();
+            if (!password) { showToast('请填写密码', true); return; }
 
-            const res = await apiFetch('/admin/card-keys/generate', {
+            const res = await apiFetch('/admin/orders', {
                 method: 'POST',
-                body: JSON.stringify({ count })
+                body: JSON.stringify({
+                    game: game.options[game.selectedIndex].text.split('(')[0].trim() || '通用',
+                    service_type: 1,
+                    password,
+                    product_code: game.value
+                })
             });
 
             if (res.ok) {
-                showToast(`成功生成 ${count} 个卡密`);
-                loadCardKeys();
+                const data = res.data;
+                document.getElementById('resultOrderNumber').textContent = data.order_no;
+                document.getElementById('resultPassword').textContent = password;
+                document.getElementById('newUserResult').style.display = 'block';
+                document.getElementById('userPassword').value = '';
+                showToast('订单号生成成功');
+                loadUsers();
                 loadStats();
             } else {
                 showToast(res.data.error || '生成失败', true);
             }
         }
 
-        async function loadCardKeys() {
-            const wrap = document.getElementById('keysTableWrap');
+        async function loadUsers() {
+            const wrap = document.getElementById('usersTableWrap');
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-
-            const res = await apiFetch('/admin/card-keys');
-            if (!res.ok) {
-                wrap.innerHTML = '<div class="empty-msg">加载失败</div>';
-                return;
-            }
-
-            const keys = res.data.cardKeys || res.data.keys || res.data || [];
-            if (keys.length === 0) {
-                wrap.innerHTML = '<div class="empty-msg">暂无卡密</div>';
-                return;
-            }
-
-            wrap.innerHTML = `
-                <table class="data-table">
-                    <thead><tr><th>ID</th><th>卡密</th><th>状态</th><th>使用者</th><th>创建时间</th></tr></thead>
-                    <tbody>${keys.map(k => `
-                        <tr>
-                            <td>${k.id}</td>
-                            <td class="mono">${k.key || k.card_key}</td>
-                            <td><span class="status-badge ${k.used || k.used_by ? 'status-used' : 'status-unused'}">${k.used || k.used_by ? '已使用' : '未使用'}</span></td>
-                            <td>${k.used_by_username || k.used_by || '—'}</td>
-                            <td>${k.created_at ? new Date(k.created_at).toLocaleString('zh-CN') : '—'}</td>
-                        </tr>
-                    `).join('')}</tbody>
-                </table>`;
+            const res = await apiFetch('/admin/orders');
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
+            const orders = res.data || [];
+            if (orders.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无用户</div>'; return; }
+            wrap.innerHTML = `<table class="data-table">
+                <thead><tr><th>订单号</th><th>游戏</th><th>状态</th><th>打手</th><th>创建时间</th></tr></thead>
+                <tbody>${orders.map(o => `<tr>
+                    <td class="mono" style="color:var(--primary-color)">${o.order_no}</td>
+                    <td>${o.game}</td>
+                    <td><span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span></td>
+                    <td>${o.worker_name || '未分配'}</td>
+                    <td>${o.created_at ? new Date(o.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
+                </tr>`).join('')}</tbody></table>`;
         }
 
-        // 订单
+        // === 订单管理 ===
         async function loadAllOrders() {
             const wrap = document.getElementById('ordersTableWrap');
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-
             const res = await apiFetch('/admin/orders');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-
-            const orders = res.data.orders || res.data || [];
+            const orders = res.data || [];
             if (orders.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无订单</div>'; return; }
-
-            wrap.innerHTML = `
-                <table class="data-table">
-                    <thead><tr><th>ID</th><th>用户</th><th>游戏</th><th>服务</th><th>状态</th><th>员工</th><th>创建时间</th></tr></thead>
-                    <tbody>${orders.map(o => `
-                        <tr>
-                            <td>#${o.id}</td>
-                            <td>${o.user_name || '—'}</td>
-                            <td>${o.game}</td>
-                            <td>${o.service_type}</td>
-                            <td><span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span></td>
-                            <td>${o.employee_name || '未分配'}</td>
-                            <td>${new Date(o.created_at).toLocaleString('zh-CN')}</td>
-                        </tr>
-                    `).join('')}</tbody>
-                </table>`;
+            wrap.innerHTML = `<table class="data-table">
+                <thead><tr><th>订单号</th><th>游戏</th><th>类型</th><th>价格</th><th>状态</th><th>打手</th><th>创建时间</th></tr></thead>
+                <tbody>${orders.map(o => `<tr>
+                    <td class="mono">${o.order_no}</td>
+                    <td>${o.game}</td>
+                    <td>${SERVICE_MAP[o.service_type] || o.service_type}</td>
+                    <td>¥${o.price || 0}</td>
+                    <td><span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span></td>
+                    <td>${o.worker_name || '未分配'}</td>
+                    <td>${o.created_at ? new Date(o.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
+                </tr>`).join('')}</tbody></table>`;
         }
 
-        // 员工
+        // === 员工管理 ===
         async function createEmployee() {
-            const username = document.getElementById('empUsername').value.trim();
+            const name = document.getElementById('empUsername').value.trim();
             const password = document.getElementById('empPassword').value;
-
-            if (!username || !password) { showToast('请填写用户名和密码', true); return; }
-
-            const res = await apiFetch('/admin/employees', {
+            if (!name || !password) { showToast('请填写员工名称和密码', true); return; }
+            const res = await apiFetch('/admin/workers', {
                 method: 'POST',
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ name, password })
             });
-
             if (res.ok) {
-                showToast('员工账号创建成功');
+                showToast('员工创建成功');
                 document.getElementById('empUsername').value = '';
                 document.getElementById('empPassword').value = '';
                 loadEmployees();
                 loadStats();
-            } else {
-                showToast(res.data.error || '创建失败', true);
-            }
+            } else { showToast(res.data.error || '创建失败', true); }
         }
 
         async function loadEmployees() {
             const wrap = document.getElementById('empTableWrap');
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-
-            const res = await apiFetch('/admin/employees');
+            const res = await apiFetch('/admin/workers');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-
-            const emps = res.data.employees || res.data || [];
+            const emps = res.data || [];
             if (emps.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无员工</div>'; return; }
+            wrap.innerHTML = `<table class="data-table">
+                <thead><tr><th>ID</th><th>名称</th><th>游戏</th><th>状态</th><th>创建时间</th></tr></thead>
+                <tbody>${emps.map(e => `<tr>
+                    <td>${e.id}</td>
+                    <td>${e.name}</td>
+                    <td>${e.games || '—'}</td>
+                    <td>${e.status}</td>
+                    <td>${e.created_at ? new Date(e.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
+                </tr>`).join('')}</tbody></table>`;
+        }
 
-            wrap.innerHTML = `
-                <table class="data-table">
-                    <thead><tr><th>ID</th><th>用户名</th><th>创建时间</th></tr></thead>
-                    <tbody>${emps.map(e => `
-                        <tr>
-                            <td>${e.id}</td>
-                            <td>${e.username}</td>
-                            <td>${e.created_at ? new Date(e.created_at).toLocaleString('zh-CN') : '—'}</td>
-                        </tr>
-                    `).join('')}</tbody>
-                </table>`;
+        // === 公告管理 ===
+        async function createAnnouncement() {
+            const title = document.getElementById('annTitle').value.trim();
+            const content = document.getElementById('annContent').value.trim();
+            if (!title || !content) { showToast('请填写标题和内容', true); return; }
+            const res = await apiFetch('/admin/announcements', {
+                method: 'POST',
+                body: JSON.stringify({ title, content, is_pinned: true })
+            });
+            if (res.ok) {
+                showToast('公告发布成功');
+                document.getElementById('annTitle').value = '';
+                document.getElementById('annContent').value = '';
+                loadAnnouncements();
+            } else { showToast(res.data.error || '发布失败', true); }
+        }
+
+        async function loadAnnouncements() {
+            const wrap = document.getElementById('annTableWrap');
+            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+            const res = await apiFetch('/admin/announcements');
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
+            const anns = res.data || [];
+            if (anns.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无公告</div>'; return; }
+            wrap.innerHTML = `<table class="data-table">
+                <thead><tr><th>ID</th><th>标题</th><th>分类</th><th>置顶</th><th>状态</th><th>创建时间</th></tr></thead>
+                <tbody>${anns.map(a => `<tr>
+                    <td>${a.id}</td>
+                    <td>${a.title}</td>
+                    <td>${a.category}</td>
+                    <td>${a.is_pinned ? '✅' : '—'}</td>
+                    <td>${a.is_active ? '启用' : '禁用'}</td>
+                    <td>${a.created_at ? new Date(a.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
+                </tr>`).join('')}</tbody></table>`;
         }
     </script>
 </body>

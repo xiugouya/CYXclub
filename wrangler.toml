@@ -5,11 +5,11 @@ compatibility_date = "2024-01-01"
 [[d1_databases]]
 binding = "cyxclub_db"
 database_name = "cyx-club-db"
-database_id = "af4003ba-28d6-4c23-aee0-e726a4f01256"
+database_id = "b126879d-a29e-4521-85f9-7371cb49867c"
 
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "d4ae5f0ba0234a4fac645f69fb71ca42"
+id = "f579ac283a4e4848b03de35d479ebc5b"
 
 [vars]
 ENVIRONMENT = "production"

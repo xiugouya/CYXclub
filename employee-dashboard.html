@@ -329,9 +329,9 @@
         })();
 
         async function loadOrders() {
-            const res = await apiFetch('/orders/assigned');
+            const res = await apiFetch('/employee/orders');
             if (res.ok) {
-                allOrders = res.data.orders || res.data || [];
+                allOrders = res.data || [];
                 renderOrders();
             } else {
                 document.getElementById('ordersList').innerHTML =
@@ -365,15 +365,15 @@
                 return `
                 <div class="order-card">
                     <div class="order-header">
-                        <span class="order-game"><i class="fas fa-gamepad"></i> ${o.game} - ${o.service_type}</span>
+                        <span class="order-game"><i class="fas fa-gamepad"></i> ${o.game}</span>
                         <span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span>
                     </div>
                     <div class="order-body">
-                        <span class="order-detail"><strong>订单号:</strong> #${o.id}</span>
-                        <span class="order-detail"><strong>客户:</strong> ${o.user_name || '未知'}</span>
-                        <span class="order-detail"><strong>创建时间:</strong> ${new Date(o.created_at).toLocaleString('zh-CN')}</span>
+                        <span class="order-detail"><strong>订单号:</strong> ${o.order_no}</span>
+                        <span class="order-detail"><strong>客户:</strong> ${o.order_no || '未知'}</span>
+                        <span class="order-detail"><strong>创建时间:</strong> ${o.created_at ? new Date(o.created_at * 1000).toLocaleString('zh-CN') : '—'}</span>
                     </div>
-                    ${o.details ? `<div class="order-notes">${o.details}</div>` : ''}
+                    ${o.user_note ? `<div class="order-notes">${o.user_note}</div>` : ''}
                     ${actions ? `<div class="order-actions">${actions}</div>` : ''}
                 </div>`;
             }).join('');
@@ -383,7 +383,7 @@
             const btn = event.target.closest('.btn-status');
             if (btn) btn.disabled = true;
 
-            const res = await apiFetch(`/orders/${orderId}/status`, {
+            const res = await apiFetch(`/employee/orders/${orderId}/status`, {
                 method: 'PUT',
                 body: JSON.stringify({ status: newStatus })
             });

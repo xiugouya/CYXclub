@@ -368,7 +368,7 @@
             <div class="dash-actions">
                 <h2 class="dash-section-title"><i class="fas fa-clipboard-list"></i> 我的订单</h2>
                 <button class="btn-new-order" onclick="openOrderModal()">
-                    <i class="fas fa-plus"></i> 新建订单
+                    <i class="fas fa-user-cog"></i> 选择打手
                 </button>
             </div>
 
@@ -379,48 +379,23 @@
         </div>
     </main>
 
-    <!-- 新建订单模态框 -->
+    <!-- 选择打手模态框 -->
     <div class="modal-overlay" id="orderModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeOrderModal()"><i class="fas fa-times"></i></button>
-            <h3 class="modal-title"><i class="fas fa-plus-circle"></i> 新建订单</h3>
+            <h3 class="modal-title"><i class="fas fa-user-cog"></i> 选择打手</h3>
 
             <form id="orderForm">
                 <div class="form-group">
-                    <label><i class="fas fa-gamepad"></i> 选择游戏</label>
-                    <select class="form-select" id="orderGame" required>
-                        <option value="">请选择游戏</option>
-                        <option value="原神">原神</option>
-                        <option value="崩坏星穹铁道">崩坏星穹铁道</option>
-                        <option value="绝区零">绝区零</option>
-                        <option value="终末地">终末地</option>
-                        <option value="三角洲行动">三角洲行动</option>
-                        <option value="王者荣耀">王者荣耀</option>
-                        <option value="无畏契约">无畏契约</option>
-                        <option value="其他">其他</option>
+                    <label><i class="fas fa-user-cog"></i> 选择打手</label>
+                    <select class="form-select" id="orderEmployee" required>
+                        <option value="">请选择打手</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label><i class="fas fa-cogs"></i> 服务类型</label>
-                    <select class="form-select" id="orderServiceType" required>
-                        <option value="">请选择服务类型</option>
-                        <option value="代练">代练</option>
-                        <option value="托管">托管</option>
-                        <option value="其他">其他</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-user-cog"></i> 选择员工</label>
-                    <select class="form-select" id="orderEmployee">
-                        <option value="">自动分配</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-edit"></i> 详细说明</label>
-                    <textarea class="form-textarea" id="orderDetails" placeholder="请输入游戏账号信息、具体需求等详细说明..." rows="4"></textarea>
+                    <label><i class="fas fa-edit"></i> 备注</label>
+                    <textarea class="form-textarea" id="orderDetails" placeholder="请输入特殊需求说明..." rows="3"></textarea>
                 </div>
 
                 <div class="form-error" id="orderError"></div>
@@ -428,7 +403,7 @@
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel-order" onclick="closeOrderModal()">取消</button>
                     <button type="submit" class="btn-submit-order" id="orderSubmitBtn">
-                        <i class="fas fa-paper-plane"></i> 提交订单
+                        <i class="fas fa-check"></i> 确认选择
                     </button>
                 </div>
             </form>
@@ -478,9 +453,9 @@
             if (currentUser.role === 'employee') { window.location.href = 'employee-dashboard.html'; return; }
             if (currentUser.role === 'admin') { window.location.href = 'admin.html'; return; }
 
-            document.getElementById('userName').textContent = currentUser.username;
-            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
-            document.getElementById('userMeta').textContent = `注册时间: ${currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString('zh-CN') : '未知'}`;
+            document.getElementById('userName').textContent = currentUser.order_no || currentUser.username;
+            document.getElementById('userAvatar').textContent = 'U';
+            document.getElementById('userMeta').textContent = `订单号: ${currentUser.order_no || currentUser.username}`;
 
             loadOrders();
             loadEmployees();
@@ -498,14 +473,14 @@
 
         async function loadOrders() {
             const container = document.getElementById('ordersList');
-            const res = await apiFetch('/orders/my');
+            const res = await apiFetch('/orders');
             if (!res.ok) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载订单失败</p></div>';
                 return;
             }
-            const orders = res.data.orders || res.data || [];
+            const orders = res.data || [];
             if (orders.length === 0) {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无订单，点击上方按钮创建新订单</p></div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无订单</p></div>';
                 return;
             }
             container.innerHTML = orders.map(o => `
@@ -513,29 +488,29 @@
                     <div class="order-header">
                         <span class="order-game">
                             <i class="${GAME_ICONS[o.game] || 'fas fa-gamepad'}"></i>
-                            ${o.game} - ${o.service_type}
+                            ${o.game}
                         </span>
                         <span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span>
                     </div>
                     <div class="order-body">
-                        <span class="order-detail"><strong>订单号:</strong> #${o.id}</span>
-                        <span class="order-detail"><strong>创建时间:</strong> ${new Date(o.created_at).toLocaleString('zh-CN')}</span>
-                        ${o.employee_name ? `<span class="order-detail"><strong>负责员工:</strong> ${o.employee_name}</span>` : ''}
+                        <span class="order-detail"><strong>订单号:</strong> ${o.order_no}</span>
+                        <span class="order-detail"><strong>创建时间:</strong> ${o.created_at ? new Date(o.created_at * 1000).toLocaleString('zh-CN') : '—'}</span>
+                        ${o.worker_name ? `<span class="order-detail"><strong>打手:</strong> ${o.worker_name}</span>` : '<span class="order-detail"><strong>打手:</strong> 待选择</span>'}
                     </div>
-                    ${o.details ? `<div class="order-notes">${o.details}</div>` : ''}
+                    ${o.user_note ? `<div class="order-notes">${o.user_note}</div>` : ''}
                 </div>
             `).join('');
         }
 
         async function loadEmployees() {
             const select = document.getElementById('orderEmployee');
-            const res = await apiFetch('/employees');
+            const res = await apiFetch('/workers');
             if (res.ok) {
-                const employees = res.data.employees || res.data || [];
-                employees.forEach(emp => {
+                const workers = res.data || [];
+                workers.forEach(w => {
                     const opt = document.createElement('option');
-                    opt.value = emp.id;
-                    opt.textContent = emp.username;
+                    opt.value = w.id;
+                    opt.textContent = w.name;
                     select.appendChild(opt);
                 });
             }
@@ -558,38 +533,31 @@
             if (e.target === e.currentTarget) closeOrderModal();
         });
 
-        // 提交订单
+        // 提交打手选择
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('orderSubmitBtn');
             const errorEl = document.getElementById('orderError');
             hideError(errorEl);
 
-            const game = document.getElementById('orderGame').value;
-            const serviceType = document.getElementById('orderServiceType').value;
             const employeeId = document.getElementById('orderEmployee').value;
-            const details = document.getElementById('orderDetails').value.trim();
-
-            if (!game || !serviceType) {
-                showError(errorEl, '请选择游戏和服务类型');
+            if (!employeeId) {
+                showError(errorEl, '请选择打手');
                 return;
             }
 
             setLoading(btn, true);
 
-            const body = { game, service_type: serviceType, details };
-            if (employeeId) body.employee_id = parseInt(employeeId);
-
             const res = await apiFetch('/orders', {
                 method: 'POST',
-                body: JSON.stringify(body)
+                body: JSON.stringify({ worker_id: employeeId })
             });
 
             if (res.ok) {
                 closeOrderModal();
                 loadOrders();
             } else {
-                showError(errorEl, res.data.error || '创建订单失败');
+                showError(errorEl, res.data.error || '选择失败');
             }
             setLoading(btn, false);
         });
