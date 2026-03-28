@@ -13,4 +13,4 @@ id = "f579ac283a4e4848b03de35d479ebc5b"
 
 [vars]
 ENVIRONMENT = "production"
-ALLOWED_ORIGINS = "https://cyx-club.pages.dev,http://localhost:5173,http://localhost:3000"
+ALLOWED_ORIGINS = "https://cyxclub.top,https://cyxclub.pages.dev,https://cyx-club.pages.dev,http://localhost:5173,http://localhost:3000"
