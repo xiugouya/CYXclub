@@ -628,11 +628,12 @@
             const users = res.data.data || [];
             if (users.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无用户</div>'; return; }
             wrap.innerHTML = `<table class="data-table">
-                <thead><tr><th>ID</th><th>用户名</th><th>创建时间</th></tr></thead>
+                <thead><tr><th>ID</th><th>用户名</th><th>创建时间</th><th>操作</th></tr></thead>
                 <tbody>${users.map(u => `<tr>
                     <td>${u.id}</td>
                     <td>${u.username}</td>
                     <td>${u.created_at ? new Date(u.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
+                    <td><button class="btn-action btn-red" onclick="deleteUser(${u.id})">删除</button></td>
                 </tr>`).join('')}</tbody></table>`;
             
             // Also populate order user dropdown
@@ -722,6 +723,7 @@
                     <td>${o.game}</td>
                     <td><span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span></td>
                     <td>${o.worker_name || '—'}</td>
+                    <td><button class="btn-action btn-green" onclick="editOrderStatus('','')">改状态</button> <button class="btn-action btn-red" onclick="deleteOrder('')">删除</button></td>
                     <td>${o.created_at ? new Date(o.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
                 </tr>`).join('')}</tbody></table>`;
         }
@@ -752,7 +754,7 @@
             const emps = res.data.data || [];
             if (emps.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无员工</div>'; return; }
             wrap.innerHTML = `<table class="data-table">
-                <thead><tr><th>ID</th><th>名称</th><th>游戏</th><th>状态</th><th>创建时间</th></tr></thead>
+                <thead><tr><th>ID</th><th>名称</th><th>游戏</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
                 <tbody>${emps.map(e => `<tr>
                     <td>${e.id}</td>
                     <td>${e.name}</td>
@@ -787,7 +789,7 @@
             const anns = res.data.data || [];
             if (anns.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无公告</div>'; return; }
             wrap.innerHTML = `<table class="data-table">
-                <thead><tr><th>ID</th><th>标题</th><th>分类</th><th>置顶</th><th>状态</th><th>创建时间</th></tr></thead>
+                <thead><tr><th>ID</th><th>标题</th><th>分类</th><th>置顶</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
                 <tbody>${anns.map(a => `<tr>
                     <td>${a.id}</td>
                     <td>${a.title}</td>
@@ -796,6 +798,34 @@
                     <td>${a.is_active ? '启用' : '禁用'}</td>
                     <td>${a.created_at ? new Date(a.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
                 </tr>`).join('')}</tbody></table>`;
+        }
+
+        // === 编辑/删除功能 ===
+        async function deleteUser(id) {
+            if (!confirm('确定删除该用户？')) return;
+            const res = await apiFetch('/admin/users/' + id, { method: 'DELETE' });
+            if (res.ok) { showToast('已删除'); loadUsers(); } else { showToast('删除失败', true); }
+        }
+        async function deleteOrder(id) {
+            if (!confirm('确定删除该订单？')) return;
+            const res = await apiFetch('/admin/orders/' + id, { method: 'DELETE' });
+            if (res.ok) { showToast('已删除'); loadAllOrders(); loadStats(); } else { showToast('删除失败', true); }
+        }
+        async function deleteWorker(id) {
+            if (!confirm('确定删除该员工？')) return;
+            const res = await apiFetch('/admin/workers/' + id, { method: 'DELETE' });
+            if (res.ok) { showToast('已删除'); loadEmployees(); loadStats(); } else { showToast('删除失败', true); }
+        }
+        async function deleteAnn(id) {
+            if (!confirm('确定删除该公告？')) return;
+            const res = await apiFetch('/admin/announcements/' + id, { method: 'DELETE' });
+            if (res.ok) { showToast('已删除'); loadAnnouncements(); } else { showToast('删除失败', true); }
+        }
+        async function editOrderStatus(id, curStatus) {
+            const status = prompt('输入新状态 (pending/in_progress/completed/cancelled):', curStatus);
+            if (!status || status === curStatus) return;
+            const res = await apiFetch('/admin/orders/' + id, { method: 'PUT', body: JSON.stringify({ status }) });
+            if (res.ok) { showToast('已更新'); loadAllOrders(); } else { showToast(res.data.data?.error || '更新失败', true); }
         }
     </script>
 </body>
