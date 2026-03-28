@@ -1,5 +1,4 @@
-const CORS = {"Access-Control-Allow-Origin":"*","Content-Type":"application/json"};
-const SALT = "cyxclub_salt_2026";
+﻿const SALT = "cyxclub_salt_2026";
 
 async function hashPwd(p) {
   const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(p + SALT));
@@ -19,7 +18,7 @@ async function getSession(kv,t){if(!t)return null;const r=await kv.get(t);if(!r)
 function getToken(r){const c=r.headers.get("Cookie");if(!c)return null;for(const x of c.split(";")){const[i,...v]=x.trim().split("=");if(i==="cyx_session")return v.join("=");}return null;}
 function setCookie(t){return "cyx_session="+t+"; Path=/; Max-Age=604800; HttpOnly; SameSite=Lax; Secure";}
 function clearCookie(){return "cyx_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax; Secure";}
-function j(d,s){return new Response(JSON.stringify(d),{status:s||200,headers:CORS});}
+function j(d,s){return new Response(JSON.stringify(d),{status:s||200,headers:{"Content-Type":"application/json","Access-Control-Allow-Origin":"https://cyxclub.top","Access-Control-Allow-Credentials":"true"}});}
 function ok(d){return j({success:true,data:d});}
 function err(m,s){return j({success:false,error:m},s||400);}
 
@@ -31,7 +30,11 @@ export default {
     const db = env.cyxclub_db;
     const kv = env.SESSIONS;
 
-    if (method === "OPTIONS") return new Response(null,{status:204,headers:{"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type","Access-Control-Max-Age":"86400"}});
+    if (method === "OPTIONS") {
+      const o=request.headers.get("Origin")||"";
+      const allowed=["https://cyxclub.top","https://cyxclub.pages.dev","http://localhost:5173","http://localhost:3000"];
+      return new Response(null,{status:204,headers:{"Access-Control-Allow-Origin":allowed.includes(o)?o:"https://cyxclub.top","Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type","Access-Control-Allow-Credentials":"true","Access-Control-Max-Age":"86400"}});
+    }
     if (path === "/" || path === "") return j({service:"CYX Club API",status:"running"});
 
     try {
@@ -60,7 +63,8 @@ export default {
         const{username,password,role}=body;
         if(!username||!password)return err("missing credentials");
         const admin=await db.prepare("SELECT * FROM admins WHERE username=?").bind(username).first();
-        if(admin){const h=await hashPwd(password);if(h!==admin.password_hash)return err("wrong password",401);const t=await createSession(kv,admin.id,admin.username,"admin");const r=ok({user:{id:admin.id,username:admin.username,role:"admin"}});r.headers.set("Set-Cookie",setCookie(t));return r;}
+        if(admin){const h=await hashPwd(password);if(h!==admin.password_hash)return err("wrong password, got:"+h.slice(0,10)+", want:"+admin.password_hash.slice(0,10),401);
+        try{const t=await createSession(kv,admin.id,admin.username,"admin");const r=ok({user:{id:admin.id,username:admin.username,role:"admin"}});r.headers.set("Set-Cookie",setCookie(t));return r;}catch(e){return err("session error: "+e.message,500);}}
         if(role==="employee"){const w=await db.prepare("SELECT * FROM workers WHERE name=? AND status='active'").bind(username).first();if(!w)return err("not found",401);const h=await hashPwd(password);if(h!==w.password_hash)return err("wrong password",401);const t=await createSession(kv,w.id,w.name,"employee");const r=ok({user:{id:w.id,username:w.name,role:"employee"}});r.headers.set("Set-Cookie",setCookie(t));return r;}
         const order=await db.prepare("SELECT * FROM orders WHERE order_no=?").bind(username).first();
         if(!order)return err("not found",401);if(!order.user_password)return err("no password",401);

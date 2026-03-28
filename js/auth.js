@@ -37,9 +37,10 @@ async function checkAuth() {
     try { return JSON.parse(cached); } catch(e) {}
   }
   const res = await apiFetch('/auth/me');
-  if (res.ok && res.data.user) {
-    sessionStorage.setItem('cyx_user', JSON.stringify(res.data.user));
-    return res.data.user;
+  if (res.ok && res.data.data && res.data.data.userId) {
+    const user = res.data.data;
+    sessionStorage.setItem('cyx_user', JSON.stringify(user));
+    return user;
   }
   return null;
 }

@@ -382,11 +382,11 @@
                 body: JSON.stringify({ username, password, role: 'user' })
             });
 
-            if (res.ok && res.data.user) {
-                sessionStorage.setItem('cyx_user', JSON.stringify(res.data.user));
+            if (res.ok && res.data.data && res.data.data.user) {
+                sessionStorage.setItem('cyx_user', JSON.stringify(res.data.data.user));
                 window.location.href = 'dashboard.html';
             } else {
-                showError(errorEl, res.data.error || '登录失败，请检查账号密码');
+                showError(errorEl, res.data.data?.error || res.data.error || '登录失败，请检查订单号和密码');
             }
             setLoading(btn, false);
         });
@@ -413,11 +413,11 @@
                 body: JSON.stringify({ username, password, role: 'employee' })
             });
 
-            if (res.ok && res.data.user) {
-                sessionStorage.setItem('cyx_user', JSON.stringify(res.data.user));
+            if (res.ok && res.data.data && res.data.data.user) {
+                sessionStorage.setItem('cyx_user', JSON.stringify(res.data.data.user));
                 window.location.href = 'employee-dashboard.html';
             } else {
-                showError(errorEl, res.data.error || '登录失败，请检查账号密码');
+                showError(errorEl, res.data.data?.error || res.data.error || '登录失败，请检查账号密码');
             }
             setLoading(btn, false);
         });
