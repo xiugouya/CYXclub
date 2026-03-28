@@ -571,19 +571,25 @@
             }
         }
 
-        async function loadProducts() {
-            const res = await apiFetch('/products');
-            if (res.ok) {
-                const products = res.data || [];
-                const select = document.getElementById('userProductCode');
-                select.innerHTML = '<option value="GEN">通用</option>';
-                products.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.code;
-                    opt.textContent = p.code + ' - ' + p.name;
-                    select.appendChild(opt);
-                });
-            }
+        function loadProducts() {
+            const select = document.getElementById('userProductCode');
+            select.innerHTML = '';
+            const products = [
+                {code:'GEN', name:'通用'},
+                {code:'YSNB', name:'原神'},
+                {code:'XQTD', name:'崩铁'},
+                {code:'JQLX', name:'绝区零'},
+                {code:'ZMDX', name:'终末地'},
+                {code:'SJZX', name:'三角洲'},
+                {code:'WZRY', name:'王者荣耀'},
+                {code:'WWQY', name:'无畏契约'}
+            ];
+            products.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.code;
+                opt.textContent = p.name + ' (' + p.code + ')';
+                select.appendChild(opt);
+            });
         }
 
         // === 用户管理（创建订单/用户账号） ===
