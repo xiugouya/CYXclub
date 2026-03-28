@@ -17,8 +17,8 @@ async function createSession(kv,uid,user,role){
 }
 async function getSession(kv,t){if(!t)return null;const r=await kv.get(t);if(!r)return null;try{const d=JSON.parse(r);if(d.expires_at<now()){await kv.delete(t);return null;}return d;}catch{return null;}}
 function getToken(r){const c=r.headers.get("Cookie");if(!c)return null;for(const x of c.split(";")){const[i,...v]=x.trim().split("=");if(i==="cyx_session")return v.join("=");}return null;}
-function setCookie(t){return "cyx_session="+t+"; Path=/; Max-Age=604800; HttpOnly; SameSite=Lax; Secure";}
-function clearCookie(){return "cyx_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax; Secure";}
+function setCookie(t){return "cyx_session="+t+"; Path=/; Max-Age=604800; HttpOnly; SameSite=None; Secure";}
+function clearCookie(){return "cyx_session=; Path=/; Max-Age=0; HttpOnly; SameSite=None; Secure";}
 function j(d,s){return new Response(JSON.stringify(d),{status:s||200,headers:{"Content-Type":"application/json","Access-Control-Allow-Origin":ORIGIN,"Access-Control-Allow-Credentials":"true"}});}
 function ok(d){return j({success:true,data:d});}
 function err(m,s){return j({success:false,error:m},s||400);}

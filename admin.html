@@ -611,7 +611,7 @@
                 document.getElementById('newUsername').value = '';
                 document.getElementById('newUserPwd').value = '';
                 loadUsers();
-            } else { showToast(res.data.data?.error || res.data.error || '添加失败', true); }
+            } else { showToast(res.data.data?.error || res.data.error || res.data?.error || '添加失败', true); }
         }
 
         async function loadUsers() {
@@ -619,7 +619,7 @@
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
             const res = await apiFetch('/admin/users');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-            const users = res.data || [];
+            const users = res.data.data || [];
             if (users.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无用户</div>'; return; }
             wrap.innerHTML = `<table class="data-table">
                 <thead><tr><th>ID</th><th>用户名</th><th>创建时间</th></tr></thead>
@@ -670,7 +670,7 @@
                 loadAllOrders();
                 loadStats();
             } else {
-                showToast(res.data.data?.error || res.data.error || '生成失败', true);
+                showToast(res.data.data?.error || res.data.error || res.data?.error || '生成失败', true);
             }
         }
 
@@ -679,7 +679,7 @@
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
             const res = await apiFetch('/admin/orders');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-            const orders = res.data || [];
+            const orders = res.data.data || [];
             if (orders.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无订单</div>'; return; }
             wrap.innerHTML = `<table class="data-table">
                 <thead><tr><th>订单号</th><th>用户</th><th>游戏</th><th>状态</th><th>打手</th><th>创建时间</th></tr></thead>
@@ -716,7 +716,7 @@
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
             const res = await apiFetch('/admin/workers');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-            const emps = res.data || [];
+            const emps = res.data.data || [];
             if (emps.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无员工</div>'; return; }
             wrap.innerHTML = `<table class="data-table">
                 <thead><tr><th>ID</th><th>名称</th><th>游戏</th><th>状态</th><th>创建时间</th></tr></thead>
@@ -751,7 +751,7 @@
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
             const res = await apiFetch('/admin/announcements');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-            const anns = res.data || [];
+            const anns = res.data.data || [];
             if (anns.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无公告</div>'; return; }
             wrap.innerHTML = `<table class="data-table">
                 <thead><tr><th>ID</th><th>标题</th><th>分类</th><th>置顶</th><th>状态</th><th>创建时间</th></tr></thead>
