@@ -540,7 +540,10 @@
         const SERVICE_MAP = { 1: '日卡', 2: '周卡', 3: '月卡' };
 
         (async () => {
+            try {
+            console.log('[admin] checking auth...');
             const user = await checkAuth();
+            console.log('[admin] auth result:', user);
             if (!user) { window.location.href = 'admin-login.html'; return; }
             if (user.role !== 'admin') {
                 window.location.href = user.role === 'employee' ? 'employee-dashboard.html' : 'dashboard.html';
@@ -560,6 +563,7 @@
                     if (btn.dataset.tab === 'announcements') loadAnnouncements();
                 });
             });
+            console.log('[admin] tab listeners attached');
 
             const hamburger = document.querySelector('.hamburger');
             const navLinks = document.querySelector('.nav-links');
@@ -568,6 +572,8 @@
                     navLinks.classList.toggle('active');
                     hamburger.classList.toggle('active');
                 });
+            }
+            } catch(e) { console.error('[admin] init error:', e); }
             }
         })();
 
