@@ -562,9 +562,9 @@
                     var panel = document.getElementById('tab-' + this.dataset.tab);
                     if (panel) { panel.classList.add('active'); console.log('[admin] panel activated:', this.dataset.tab); }
                     // Load data
-                    if (this.dataset.tab === 'orders') { loadAllOrders(); loadOrderForm(); }
-                    if (this.dataset.tab === 'employees') loadEmployees();
-                    if (this.dataset.tab === 'announcements') loadAnnouncements();
+                    if (this.dataset.tab === 'orders') { console.log('[admin] calling loadAllOrders'); loadAllOrders().then(() => console.log('[admin] loadAllOrders done')).catch(e => console.error('[admin] loadAllOrders error:', e)); loadOrderForm().then(() => console.log('[admin] loadOrderForm done')).catch(e => console.error('[admin] loadOrderForm error:', e)); }
+                    if (this.dataset.tab === 'employees') { console.log('[admin] calling loadEmployees'); loadEmployees().then(() => console.log('[admin] loadEmployees done')).catch(e => console.error('[admin] loadEmployees error:', e)); }
+                    if (this.dataset.tab === 'announcements') { console.log('[admin] calling loadAnnouncements'); loadAnnouncements().then(() => console.log('[admin] loadAnnouncements done')).catch(e => console.error('[admin] loadAnnouncements error:', e)); }
                 });
             });
             console.log('[admin] tab listeners attached');
