@@ -618,30 +618,26 @@
         }
 
         async function loadUsers() {
-            const wrap = document.getElementById('usersTableWrap');
-            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-            const res = await apiFetch('/admin/users');
-            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-            const users = res.data.data || [];
-            if (users.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无用户</div>'; return; }
-            wrap.innerHTML = `<table class="data-table">
-                <thead><tr><th>ID</th><th>用户名</th><th>创建时间</th><th>操作</th></tr></thead>
-                <tbody>${users.map(u => `<tr>
-                    <td>${u.id}</td>
-                    <td>${u.username}</td>
-                    <td>${u.created_at ? new Date(u.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
-                    <td><button class="btn-action btn-red" onclick="deleteUser(${u.id})">删除</button></td>
-                </tr>`).join('')}</tbody></table>`;
-            
-            // Also populate order user dropdown
-            const sel = document.getElementById('orderUser');
-            sel.innerHTML = '<option value="">请选择用户</option>';
-            users.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.id;
-                opt.textContent = u.username + ' (#' + u.id + ')';
-                sel.appendChild(opt);
-            });
+            var wrap = document.getElementById('usersTableWrap');
+            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            var res = await apiFetch('/admin/users');
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed</div>'; return; }
+            var users = res.data.data || [];
+            if (users.length === 0) { wrap.innerHTML = '<div class="empty-msg">No users</div>'; return; }
+            var html = '<table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Created</th><th>Action</th></tr></thead><tbody>';
+            for (var i = 0; i < users.length; i++) {
+                var u = users[i];
+                var tm = u.created_at ? new Date(u.created_at * 1000).toLocaleString('zh-CN') : '-';
+                html += '<tr><td>' + u.id + '</td><td>' + u.username + '</td><td>' + tm + '</td>';
+                html += '<td><button class="btn-action btn-red" onclick="deleteUser(' + u.id + ')">Del</button></td></tr>';
+            }
+            html += '</tbody></table>';
+            wrap.innerHTML = html;
+            var sel = document.getElementById('orderUser');
+            sel.innerHTML = '<option value="">Select user</option>';
+            for (var i = 0; i < users.length; i++) {
+                sel.innerHTML += '<option value="' + users[i].id + '">' + users[i].username + ' (#' + users[i].id + ')</option>';
+            }
         }
 
         // === 订单管理 ===
@@ -736,21 +732,21 @@
         }
 
         async function loadEmployees() {
-            const wrap = document.getElementById('empTableWrap');
-            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-            const res = await apiFetch('/admin/workers');
-            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-            const emps = res.data.data || [];
-            if (emps.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无员工</div>'; return; }
-            wrap.innerHTML = `<table class="data-table">
-                <thead><tr><th>ID</th><th>名称</th><th>游戏</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
-                <tbody>${emps.map(e => `<tr>
-                    <td>${e.id}</td>
-                    <td>${e.name}</td>
-                    <td>${e.games || '—'}</td>
-                    <td>${e.status}</td>
-                    <td>${e.created_at ? new Date(e.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
-                </tr>`).join('')}</tbody></table>`;
+            var wrap = document.getElementById('empTableWrap');
+            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            var res = await apiFetch('/admin/workers');
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed</div>'; return; }
+            var emps = res.data.data || [];
+            if (emps.length === 0) { wrap.innerHTML = '<div class="empty-msg">No employees</div>'; return; }
+            var html = '<table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Games</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>';
+            for (var i = 0; i < emps.length; i++) {
+                var e = emps[i];
+                var tm = e.created_at ? new Date(e.created_at * 1000).toLocaleString('zh-CN') : '-';
+                html += '<tr><td>' + e.id + '</td><td>' + e.name + '</td><td>' + (e.games || '-') + '</td><td>' + e.status + '</td><td>' + tm + '</td>';
+                html += '<td><button class="btn-action btn-red" onclick="deleteWorker(\'' + e.id + '\')">Del</button></td></tr>';
+            }
+            html += '</tbody></table>';
+            wrap.innerHTML = html;
         }
 
         // === 公告管理 ===
@@ -771,22 +767,21 @@
         }
 
         async function loadAnnouncements() {
-            const wrap = document.getElementById('annTableWrap');
-            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-            const res = await apiFetch('/admin/announcements');
-            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-            const anns = res.data.data || [];
-            if (anns.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无公告</div>'; return; }
-            wrap.innerHTML = `<table class="data-table">
-                <thead><tr><th>ID</th><th>标题</th><th>分类</th><th>置顶</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
-                <tbody>${anns.map(a => `<tr>
-                    <td>${a.id}</td>
-                    <td>${a.title}</td>
-                    <td>${a.category}</td>
-                    <td>${a.is_pinned ? '✅' : '—'}</td>
-                    <td>${a.is_active ? '启用' : '禁用'}</td>
-                    <td>${a.created_at ? new Date(a.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
-                </tr>`).join('')}</tbody></table>`;
+            var wrap = document.getElementById('annTableWrap');
+            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            var res = await apiFetch('/admin/announcements');
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed</div>'; return; }
+            var anns = res.data.data || [];
+            if (anns.length === 0) { wrap.innerHTML = '<div class="empty-msg">No announcements</div>'; return; }
+            var html = '<table class="data-table"><thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Pinned</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>';
+            for (var i = 0; i < anns.length; i++) {
+                var a = anns[i];
+                var tm = a.created_at ? new Date(a.created_at * 1000).toLocaleString('zh-CN') : '-';
+                html += '<tr><td>' + a.id + '</td><td>' + a.title + '</td><td>' + a.category + '</td><td>' + (a.is_pinned ? 'Y' : '-') + '</td><td>' + (a.is_active ? 'On' : 'Off') + '</td><td>' + tm + '</td>';
+                html += '<td><button class="btn-action btn-red" onclick="deleteAnn(\'' + a.id + '\')">Del</button></td></tr>';
+            }
+            html += '</tbody></table>';
+            wrap.innerHTML = html;
         }
 
         // === 编辑/删除功能 ===
