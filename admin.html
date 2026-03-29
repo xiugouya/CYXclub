@@ -549,26 +549,32 @@
                 window.location.href = user.role === 'employee' ? 'employee-dashboard.html' : 'dashboard.html';
                 return;
             }
-            loadStats();
-            loadUsers();
-
+            
+            // Bind tab events FIRST
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', function() {
+                    console.log('[admin] tab clicked:', this.dataset.tab);
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-                    if (btn.dataset.tab === 'orders') { loadAllOrders(); loadOrderForm(); }
-                    if (btn.dataset.tab === 'employees') loadEmployees();
-                    if (btn.dataset.tab === 'announcements') loadAnnouncements();
+                    this.classList.add('active');
+                    var panel = document.getElementById('tab-' + this.dataset.tab);
+                    if (panel) { panel.classList.add('active'); console.log('[admin] panel activated:', this.dataset.tab); }
+                    // Load data
+                    if (this.dataset.tab === 'orders') { loadAllOrders(); loadOrderForm(); }
+                    if (this.dataset.tab === 'employees') loadEmployees();
+                    if (this.dataset.tab === 'announcements') loadAnnouncements();
                 });
             });
             console.log('[admin] tab listeners attached');
+            
+            // Then load data
+            loadStats();
+            loadUsers();
 
-            const hamburger = document.querySelector('.hamburger');
-            const navLinks = document.querySelector('.nav-links');
+            var hamburger = document.querySelector('.hamburger');
+            var navLinks = document.querySelector('.nav-links');
             if (hamburger) {
-                hamburger.addEventListener('click', () => {
+                hamburger.addEventListener('click', function() {
                     navLinks.classList.toggle('active');
                     hamburger.classList.toggle('active');
                 });
