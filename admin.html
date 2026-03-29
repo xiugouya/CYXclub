@@ -691,6 +691,17 @@
             }
         }
 
+        async function loadOrderForm() {
+            var res = await apiFetch('/admin/users');
+            var sel = document.getElementById('orderUser');
+            sel.innerHTML = '<option value="">Select user</option>';
+            if (res.ok) {
+                var users = res.data.data || [];
+                for (var i = 0; i < users.length; i++) {
+                    sel.innerHTML += '<option value="' + users[i].id + '">' + users[i].username + ' (#' + users[i].id + ')</option>';
+                }
+            }
+        }
         async function loadAllOrders() {
             var wrap = document.getElementById('ordersTableWrap');
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
