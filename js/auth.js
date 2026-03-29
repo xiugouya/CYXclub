@@ -16,15 +16,19 @@ async function apiFetch(path, options = {}) {
     merged.headers = { ...defaults.headers, ...options.headers };
   }
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    merged.signal = controller.signal;
     const res = await fetch(API_BASE + path, merged);
+    clearTimeout(timeout);
     if (res.status === 401) {
       sessionStorage.removeItem('cyx_user');
-      return { ok: false, status: 401, data: { error: '未登录' } };
+      return { ok: false, status: 401, data: { error: 'Unauthorized' } };
     }
     const data = await res.json().catch(() => ({}));
     return { ok: res.ok, status: res.status, data };
   } catch (e) {
-    return { ok: false, status: 0, data: { error: '网络错误: ' + e.message } };
+    return { ok: false, status: 0, data: { error: 'Network error: ' + e.message } };
   }
 }
 
