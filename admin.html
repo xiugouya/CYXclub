@@ -694,23 +694,27 @@
         }
 
         async function loadAllOrders() {
-            const wrap = document.getElementById('ordersTableWrap');
-            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
-            const res = await apiFetch('/admin/orders');
-            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">加载失败</div>'; return; }
-            const orders = res.data.data || [];
-            if (orders.length === 0) { wrap.innerHTML = '<div class="empty-msg">暂无订单</div>'; return; }
-            wrap.innerHTML = `<table class="data-table">
-                <thead><tr><th>订单号</th><th>用户</th><th>游戏</th><th>状态</th><th>打手</th><th>创建时间</th></tr></thead>
-                <tbody>${orders.map(o => `<tr>
-                    <td class="mono" style="color:var(--primary-color)">${o.order_no}</td>
-                    <td>${o.user_id || '—'}</td>
-                    <td>${o.game}</td>
-                    <td><span class="status-badge status-${o.status}">${STATUS_MAP[o.status] || o.status}</span></td>
-                    <td>${o.worker_name || '—'}</td>
-                    <td><button class="btn-action btn-green" onclick="editOrderStatus('','')">改状态</button> <button class="btn-action btn-red" onclick="deleteOrder('')">删除</button></td>
-                    <td>${o.created_at ? new Date(o.created_at * 1000).toLocaleString('zh-CN') : '—'}</td>
-                </tr>`).join('')}</tbody></table>`;
+            var wrap = document.getElementById('ordersTableWrap');
+            wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            var res = await apiFetch('/admin/orders');
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed</div>'; return; }
+            var orders = res.data.data || [];
+            if (orders.length === 0) { wrap.innerHTML = '<div class="empty-msg">No orders</div>'; return; }
+            var html = '<table class="data-table"><thead><tr><th>Order</th><th>User</th><th>Game</th><th>Status</th><th>Worker</th><th>Action</th><th>Time</th></tr></thead><tbody>';
+            for (var i = 0; i < orders.length; i++) {
+                var o = orders[i];
+                var st = STATUS_MAP[o.status] || o.status;
+                var tm = o.created_at ? new Date(o.created_at * 1000).toLocaleString('zh-CN') : '-';
+                html += '<tr><td class="mono" style="color:var(--primary-color)">' + o.order_no + '</td>';
+                html += '<td>' + (o.user_id || '-') + '</td>';
+                html += '<td>' + o.game + '</td>';
+                html += '<td><span class="status-badge status-' + o.status + '">' + st + '</span></td>';
+                html += '<td>' + (o.worker_name || '-') + '</td>';
+                html += '<td><button class="btn-action btn-green" onclick="editOrderStatus(\'' + o.id + '\',\'' + o.status + '\')">Status</button> <button class="btn-action btn-red" onclick="deleteOrder(\'' + o.id + '\')">Del</button></td>';
+                html += '<td>' + tm + '</td></tr>';
+            }
+            html += '</tbody></table>';
+            wrap.innerHTML = html;
         }
 
         // === 员工管理 ===
