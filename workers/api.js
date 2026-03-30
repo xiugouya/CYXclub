@@ -82,8 +82,9 @@ export default {
         const order=await db.prepare("SELECT * FROM orders WHERE order_no=?").bind(username).first();
         if(!order)return err("not found",401);if(!order.user_password)return err("no password",401);
         const h=await hashPwd(password);if(h!==order.user_password)return err("wrong password",401);
-        const t=await createSession(kv,order.id,order.order_no,"user");
-        const r=ok({user:{id:order.id,order_no:order.order_no,game:order.game,status:order.status,role:"user"},token:t});
+        const uid=order.user_id||order.id;
+        const t=await createSession(kv,uid,order.order_no,"user");
+        const r=ok({user:{id:uid,order_no:order.order_no,role:"user"},token:t});
         r.headers.set("Set-Cookie",setCookie(t));return r;
       }
 
@@ -136,11 +137,8 @@ export default {
 
       // USER
       if(path==="/api/workers"&&method==="GET"){return ok((await db.prepare("SELECT id,name,games FROM workers WHERE status='active'").all()).results);}
-      if(path==="/api/orders"){
-        if(session.role!=="user")return err("user only",403);
-        if(method==="GET"){const o=await db.prepare("SELECT o.*,w.name as worker_name FROM orders o LEFT JOIN workers w ON o.worker_id=w.id WHERE o.id=?").bind(session.user_id).first();return ok(o?[o]:[]);}
-        if(method==="POST"){const b=await request.json();if(!b.worker_id)return err("select a worker");const w=await db.prepare("SELECT id FROM workers WHERE id=? AND status='active'").bind(b.worker_id).first();if(!w)return err("worker not found");await db.prepare("UPDATE orders SET worker_id=?,updated_at=? WHERE id=?").bind(b.worker_id,now(),session.user_id).run();return ok({message:"selected"});}
-      }
+      if(path==="/api/orders"&&method==="GET"){if(session.role!=="user")return err("user only",403);const orders=await db.prepare("SELECT o.*,w.name as worker_name FROM orders o LEFT JOIN workers w ON o.worker_id=w.id WHERE o.user_id=? ORDER BY o.created_at DESC").bind(session.user_id).all();return ok(orders.results||[]);}
+      if(path.startsWith("/api/orders/")&&method==="PUT"){if(session.role!=="user")return err("user only",403);const m=path.match(/^\/api\/orders\/([a-z0-9_]+)\/worker$/);if(m){const oid=m[1];const b=await request.json();if(!b.worker_id)return err("select a worker");const w=await db.prepare("SELECT id FROM workers WHERE id=? AND status='active'").bind(b.worker_id).first();if(!w)return err("worker not found");const order=await db.prepare("SELECT id FROM orders WHERE id=? AND user_id=?").bind(oid,session.user_id).first();if(!order)return err("order not found",404);await db.prepare("UPDATE orders SET worker_id=?,updated_at=? WHERE id=?").bind(b.worker_id,now(),oid).run();return ok({message:"selected"});}return err("not found",404);}
 
       // EMPLOYEE
       if(path.startsWith("/api/employee/")){

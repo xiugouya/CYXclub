@@ -368,9 +368,6 @@
             <!-- 操作栏 -->
             <div class="dash-actions">
                 <h2 class="dash-section-title"><i class="fas fa-clipboard-list"></i> 我的订单</h2>
-                <button class="btn-new-order" onclick="openOrderModal()">
-                    <i class="fas fa-user-cog"></i> 选择打手
-                </button>
             </div>
 
             <!-- 订单列表 -->
@@ -446,6 +443,7 @@
         };
 
         let currentUser = null;
+        let currentOrderId = null;
 
         // 页面初始化
         (async () => {
@@ -499,6 +497,7 @@
                         ${o.worker_name ? `<span class="order-detail"><strong>打手:</strong> ${o.worker_name}</span>` : '<span class="order-detail"><strong>打手:</strong> 待选择</span>'}
                     </div>
                     ${o.user_note ? `<div class="order-notes">${o.user_note}</div>` : ''}
+                    ${!o.worker_id ? `<div style="margin-top:14px"><button class="btn-new-order" onclick="openOrderModal('${o.id}')"><i class="fas fa-user-cog"></i> 选择打手</button></div>` : ''}
                 </div>
             `).join('');
         }
@@ -517,7 +516,8 @@
             }
         }
 
-        function openOrderModal() {
+        function openOrderModal(orderId) {
+            currentOrderId = orderId;
             document.getElementById('orderModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -546,11 +546,15 @@
                 showError(errorEl, '请选择打手');
                 return;
             }
+            if (!currentOrderId) {
+                showError(errorEl, '订单ID丢失，请刷新页面重试');
+                return;
+            }
 
             setLoading(btn, true);
 
-            const res = await apiFetch('/orders', {
-                method: 'POST',
+            const res = await apiFetch('/orders/' + currentOrderId + '/worker', {
+                method: 'PUT',
                 body: JSON.stringify({ worker_id: employeeId })
             });
 
