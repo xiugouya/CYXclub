@@ -597,7 +597,7 @@
         async function loadStats() {
             const res = await apiFetch('/admin/stats');
             if (res.ok) {
-                const s = res.data;
+                const s = res.data?.data || res.data;
                 document.getElementById('statVisits').textContent = s.visits ?? '—';
                 document.getElementById('statWorkers').textContent = s.workers ?? '—';
                 document.getElementById('statOrders').textContent = s.orders?.total ?? '—';
@@ -619,15 +619,15 @@
                 document.getElementById('newUsername').value = '';
                 document.getElementById('newUserPwd').value = '';
                 loadUsers();
-            } else { showToast(res.data.data?.error || res.data.error || res.data?.error || '添加失败', true); }
+            } else { showToast(res.data?.error || '添加失败', true); }
         }
 
         async function loadUsers() {
             var wrap = document.getElementById('usersTableWrap');
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
             var res = await apiFetch('/admin/users');
-            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed</div>'; return; }
-            var users = res.data.data || [];
+            if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed: ' + (res.data?.error || '') + '</div>'; return; }
+            var users = (res.data && res.data.data) || [];
             if (users.length === 0) { wrap.innerHTML = '<div class="empty-msg">No users</div>'; return; }
             var html = '<table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Created</th><th>Action</th></tr></thead><tbody>';
             for (var i = 0; i < users.length; i++) {
@@ -651,7 +651,7 @@
             const uRes = await apiFetch('/admin/users');
             const uSel = document.getElementById('orderUser');
             uSel.innerHTML = '<option value="">请选择用户</option>';
-            if (uRes.ok) (uRes.data.data||[]).forEach(u => {
+            if (uRes.ok) (uRes.data?.data||[]).forEach(u => {
                 const opt = document.createElement('option');
                 opt.value = u.id;
                 opt.textContent = u.username + ' (#' + u.id + ')';
@@ -690,7 +690,7 @@
                 loadAllOrders();
                 loadStats();
             } else {
-                showToast(res.data.data?.error || res.data.error || res.data?.error || '生成失败', true);
+                showToast(res.data?.error || '生成失败', true);
             }
         }
 
@@ -699,7 +699,7 @@
             var sel = document.getElementById('orderUser');
             sel.innerHTML = '<option value="">Select user</option>';
             if (res.ok) {
-                var users = res.data.data || [];
+                var users = (res.data && res.data.data) || [];
                 for (var i = 0; i < users.length; i++) {
                     sel.innerHTML += '<option value="' + users[i].id + '">' + users[i].username + ' (#' + users[i].id + ')</option>';
                 }
@@ -710,7 +710,7 @@
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
             var res = await apiFetch('/admin/orders');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed</div>'; return; }
-            var orders = res.data.data || [];
+            var orders = (res.data && res.data.data) || [];
             if (orders.length === 0) { wrap.innerHTML = '<div class="empty-msg">No orders</div>'; return; }
             var html = '<table class="data-table"><thead><tr><th>Order</th><th>User</th><th>Game</th><th>Status</th><th>Worker</th><th>Action</th><th>Time</th></tr></thead><tbody>';
             for (var i = 0; i < orders.length; i++) {
@@ -752,7 +752,7 @@
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
             var res = await apiFetch('/admin/workers');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed</div>'; return; }
-            var emps = res.data.data || [];
+            var emps = (res.data && res.data.data) || [];
             if (emps.length === 0) { wrap.innerHTML = '<div class="empty-msg">No employees</div>'; return; }
             var html = '<table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Games</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>';
             for (var i = 0; i < emps.length; i++) {
@@ -787,7 +787,7 @@
             wrap.innerHTML = '<div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
             var res = await apiFetch('/admin/announcements');
             if (!res.ok) { wrap.innerHTML = '<div class="empty-msg">Load failed</div>'; return; }
-            var anns = res.data.data || [];
+            var anns = (res.data && res.data.data) || [];
             if (anns.length === 0) { wrap.innerHTML = '<div class="empty-msg">No announcements</div>'; return; }
             var html = '<table class="data-table"><thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Pinned</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>';
             for (var i = 0; i < anns.length; i++) {
@@ -825,7 +825,7 @@
             const status = prompt('输入新状态 (pending/in_progress/completed/cancelled):', curStatus);
             if (!status || status === curStatus) return;
             const res = await apiFetch('/admin/orders/' + id, { method: 'PUT', body: JSON.stringify({ status }) });
-            if (res.ok) { showToast('已更新'); loadAllOrders(); } else { showToast(res.data.data?.error || '更新失败', true); }
+            if (res.ok) { showToast('已更新'); loadAllOrders(); } else { showToast(res.data?.error || '更新失败', true); }
         }
     </script>
 </body>
