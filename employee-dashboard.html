@@ -328,7 +328,7 @@
             border-color: var(--primary-color);
             background: rgba(249,249,0,0.06);
         }
-        .game-check-item input { display: none; }
+        .game-check-item input[type="checkbox"] { display: none; }
         .game-check-box {
             width: 20px; height: 20px;
             border: 2px solid var(--border-color);
@@ -619,17 +619,13 @@
             var list = document.getElementById('gameCheckList');
             list.innerHTML = ALL_GAMES.map(function(g) {
                 var checked = myGames.includes(g);
-                return '<label class="game-check-item ' + (checked ? 'checked' : '') + '">' +
-                    '<input type="checkbox" value="' + g + '" ' + (checked ? 'checked' : '') + '>' +
+                return '<div class="game-check-item ' + (checked ? 'checked' : '') + '" data-game="' + g + '">' +
                     '<span class="game-check-box"></span>' +
-                    '<span class="game-check-label">' + g + '</span></label>';
+                    '<span class="game-check-label">' + g + '</span></div>';
             }).join('');
             list.querySelectorAll('.game-check-item').forEach(function(item) {
-                item.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'INPUT') return;
-                    var cb = item.querySelector('input');
-                    cb.checked = !cb.checked;
-                    item.classList.toggle('checked', cb.checked);
+                item.addEventListener('click', function() {
+                    item.classList.toggle('checked');
                 });
             });
             document.getElementById('gamesModal').classList.add('active');
@@ -647,8 +643,8 @@
 
         async function saveGames() {
             var btn = document.getElementById('saveGamesBtn');
-            var checked = document.querySelectorAll('#gameCheckList input:checked');
-            var games = Array.from(checked).map(function(cb) { return cb.value; });
+            var items = document.querySelectorAll('#gameCheckList .game-check-item.checked');
+            var games = Array.from(items).map(function(el) { return el.dataset.game; });
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
             var res = await apiFetch('/employee/profile', {
