@@ -16,7 +16,7 @@ async function createSession(kv,uid,user,role){
   return t;
 }
 async function getSession(kv,t){if(!t)return null;const r=await kv.get(t);if(!r)return null;try{const d=JSON.parse(r);if(d.expires_at<now()){await kv.delete(t);return null;}return d;}catch{return null;}}
-function getToken(r){const c=r.headers.get("Cookie");if(!c)return null;for(const x of c.split(";")){const[i,...v]=x.trim().split("=");if(i==="cyx_session")return v.join("=");}return null;}
+function getToken(r){const auth=r.headers.get("Authorization");if(auth&&auth.startsWith("Bearer "))return auth.slice(7);const c=r.headers.get("Cookie");if(!c)return null;for(const x of c.split(";")){const[i,...v]=x.trim().split("=");if(i==="cyx_session")return v.join("=");}return null;}
 function setCookie(t){return "cyx_session="+t+"; Path=/; Max-Age=604800; HttpOnly; SameSite=None; Secure";}
 function clearCookie(){return "cyx_session=; Path=/; Max-Age=0; HttpOnly; SameSite=None; Secure";}
 function j(d,s){return new Response(JSON.stringify(d),{status:s||200,headers:{"Content-Type":"application/json","Access-Control-Allow-Origin":ORIGIN,"Access-Control-Allow-Credentials":"true"}});}
@@ -67,13 +67,13 @@ export default {
         if(!username||!password)return err("missing credentials");
         const admin=await db.prepare("SELECT * FROM admins WHERE username=?").bind(username).first();
         if(admin){const h=await hashPwd(password);if(h!==admin.password_hash)return err("wrong password, got:"+h.slice(0,10)+", want:"+admin.password_hash.slice(0,10),401);
-        try{const t=await createSession(kv,admin.id,admin.username,"admin");const r=ok({user:{id:admin.id,username:admin.username,role:"admin"}});r.headers.set("Set-Cookie",setCookie(t));return r;}catch(e){return err("session error: "+e.message,500);}}
-        if(role==="employee"){const w=await db.prepare("SELECT * FROM workers WHERE name=? AND status='active'").bind(username).first();if(!w)return err("not found",401);const h=await hashPwd(password);if(h!==w.password_hash)return err("wrong password",401);const t=await createSession(kv,w.id,w.name,"employee");const r=ok({user:{id:w.id,username:w.name,role:"employee"}});r.headers.set("Set-Cookie",setCookie(t));return r;}
+        try{const t=await createSession(kv,admin.id,admin.username,"admin");const r=ok({user:{id:admin.id,username:admin.username,role:"admin"},token:t});r.headers.set("Set-Cookie",setCookie(t));return r;}catch(e){return err("session error: "+e.message,500);}}
+        if(role==="employee"){const w=await db.prepare("SELECT * FROM workers WHERE name=? AND status='active'").bind(username).first();if(!w)return err("not found",401);const h=await hashPwd(password);if(h!==w.password_hash)return err("wrong password",401);const t=await createSession(kv,w.id,w.name,"employee");const r=ok({user:{id:w.id,username:w.name,role:"employee"},token:t});r.headers.set("Set-Cookie",setCookie(t));return r;}
         const order=await db.prepare("SELECT * FROM orders WHERE order_no=?").bind(username).first();
         if(!order)return err("not found",401);if(!order.user_password)return err("no password",401);
         const h=await hashPwd(password);if(h!==order.user_password)return err("wrong password",401);
         const t=await createSession(kv,order.id,order.order_no,"user");
-        const r=ok({user:{id:order.id,order_no:order.order_no,game:order.game,status:order.status,role:"user"}});
+        const r=ok({user:{id:order.id,order_no:order.order_no,game:order.game,status:order.status,role:"user"},token:t});
         r.headers.set("Set-Cookie",setCookie(t));return r;
       }
 

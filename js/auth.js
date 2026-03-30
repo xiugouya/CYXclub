@@ -7,10 +7,14 @@ const API_BASE = window.location.hostname === 'localhost'
  * 通用 API 请求封装
  */
 async function apiFetch(path, options = {}) {
+  const token = sessionStorage.getItem('cyx_token');
   const defaults = {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
   };
+  if (token) {
+    defaults.headers['Authorization'] = 'Bearer ' + token;
+  }
   const merged = { ...defaults, ...options };
   if (options.headers) {
     merged.headers = { ...defaults.headers, ...options.headers };
@@ -23,6 +27,7 @@ async function apiFetch(path, options = {}) {
     clearTimeout(timeout);
     if (res.status === 401) {
       sessionStorage.removeItem('cyx_user');
+      sessionStorage.removeItem('cyx_token');
       return { ok: false, status: 401, data: { error: 'Unauthorized' } };
     }
     const data = await res.json().catch(() => ({}));
@@ -55,6 +60,7 @@ async function checkAuth() {
 async function logout() {
   await apiFetch('/auth/logout', { method: 'POST' });
   sessionStorage.removeItem('cyx_user');
+  sessionStorage.removeItem('cyx_token');
   window.location.href = 'login.html';
 }
 

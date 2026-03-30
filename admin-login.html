@@ -344,6 +344,7 @@
             if (res.ok && res.data.data && res.data.data.user) {
                 const user = res.data.data.user;
                 sessionStorage.setItem('cyx_user', JSON.stringify(user));
+                if (res.data.data.token) sessionStorage.setItem('cyx_token', res.data.data.token);
                 if (user.role === 'admin') window.location.href = 'admin.html';
                 else window.location.href = 'employee-dashboard.html';
             } else {

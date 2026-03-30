@@ -348,6 +348,7 @@
 
             if (res.ok && res.data.data && res.data.data.user) {
                 sessionStorage.setItem('cyx_user', JSON.stringify(res.data.data.user));
+                if (res.data.data.token) sessionStorage.setItem('cyx_token', res.data.data.token);
                 window.location.href = 'dashboard.html';
             } else {
                 showError(errorEl, res.data.data?.error || res.data.error || '登录失败，请检查订单号和密码');
