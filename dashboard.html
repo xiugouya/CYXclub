@@ -479,7 +479,7 @@
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载订单失败</p></div>';
                 return;
             }
-            const orders = res.data || [];
+            const orders = (res.data && res.data.data) || [];
             if (orders.length === 0) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无订单</p></div>';
                 return;
@@ -507,7 +507,7 @@
             const select = document.getElementById('orderEmployee');
             const res = await apiFetch('/workers');
             if (res.ok) {
-                const workers = res.data || [];
+                const workers = (res.data && res.data.data) || [];
                 workers.forEach(w => {
                     const opt = document.createElement('option');
                     opt.value = w.id;
