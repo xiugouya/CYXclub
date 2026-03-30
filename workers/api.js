@@ -40,6 +40,16 @@ export default {
     }
     if (path === "/" || path === "") return j({service:"CYX Club API",status:"running"});
 
+    // DEBUG: check what auth info comes in
+    if (path==="/api/debug/auth" && method==="GET") {
+      const authHeader=request.headers.get("Authorization")||"none";
+      const cookieHeader=request.headers.get("Cookie")||"none";
+      const token=getToken(request);
+      let session=null;
+      if(token) session=await getSession(kv,token);
+      return ok({hasAuthHeader:authHeader!=="none",authPreview:authHeader.slice(0,30),hasCookie:cookieHeader!=="none",tokenPreview:token?token.slice(0,16):null,session:session});
+    }
+
     try {
       // PUBLIC
       if (path==="/api/announcements" && method==="GET") {

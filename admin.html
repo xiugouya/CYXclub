@@ -547,8 +547,16 @@
         (async () => {
             try {
             console.log('[admin] checking auth...');
+            console.log('[admin] sessionStorage token:', sessionStorage.getItem('cyx_token')?.slice(0,16) || 'NULL');
+            console.log('[admin] sessionStorage user:', sessionStorage.getItem('cyx_user'));
             const user = await checkAuth();
             console.log('[admin] auth result:', user);
+
+            // DEBUG: check what the API sees
+            try {
+              const dbg = await apiFetch('/debug/auth');
+              console.log('[admin] debug auth:', JSON.stringify(dbg.data));
+            } catch(e) { console.log('[admin] debug error:', e); }
             if (!user) { window.location.href = 'admin-login.html'; return; }
             if (user.role !== 'admin') {
                 window.location.href = user.role === 'employee' ? 'employee-dashboard.html' : 'dashboard.html';
