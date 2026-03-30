@@ -210,6 +210,174 @@
         .loading-state { text-align: center; padding: 40px; color: var(--text-gray); }
         .loading-state i { margin-right: 8px; }
 
+        /* 可接单游戏卡片 */
+        .games-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.55s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+        .games-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+        .games-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .games-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+        .games-title i { color: var(--primary-color); margin-right: 8px; }
+        .games-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .game-tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(249,249,0,0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(249,249,0,0.25);
+        }
+        .btn-edit-games {
+            padding: 7px 16px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border-color);
+            background: transparent;
+            color: var(--text-gray);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .btn-edit-games:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .games-empty { color: var(--text-gray); font-size: 14px; }
+
+        /* 游戏编辑弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+            animation: fadeInScale 0.3s ease both;
+            position: relative;
+        }
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            border-radius: 20px 20px 0 0;
+        }
+        .modal-title {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .modal-title i { margin-right: 8px; }
+        .modal-close {
+            position: absolute;
+            top: 14px; right: 16px;
+            background: none; border: none;
+            color: var(--text-gray); font-size: 20px;
+            cursor: pointer; padding: 4px;
+        }
+        .modal-close:hover { color: var(--text-light); }
+        .game-check-list { display: flex; flex-direction: column; gap: 10px; }
+        .game-check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--darker-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .game-check-item:hover { border-color: var(--primary-color); }
+        .game-check-item.checked {
+            border-color: var(--primary-color);
+            background: rgba(249,249,0,0.06);
+        }
+        .game-check-item input { display: none; }
+        .game-check-box {
+            width: 20px; height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .game-check-item.checked .game-check-box {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .game-check-item.checked .game-check-box::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 11px;
+            color: var(--dark-bg);
+        }
+        .game-check-label { font-size: 14px; color: var(--text-light); font-weight: 500; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-save-games {
+            flex: 1;
+            padding: 12px;
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .btn-save-games:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-save-games:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-cancel-modal {
+            padding: 12px 20px;
+            background: transparent;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-gray);
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .btn-cancel-modal:hover { border-color: var(--text-gray); color: var(--text-light); }
+
         @media (max-width: 640px) {
             .user-info-card { flex-direction: column; align-items: flex-start; }
             .order-header { flex-direction: column; align-items: flex-start; }
@@ -247,6 +415,17 @@
                 </button>
             </div>
 
+            <!-- 可接单游戏 -->
+            <div class="games-card">
+                <div class="games-header">
+                    <span class="games-title"><i class="fas fa-gamepad"></i> 可接单游戏</span>
+                    <button class="btn-edit-games" onclick="openGamesModal()"><i class="fas fa-pen"></i> 编辑</button>
+                </div>
+                <div class="games-tags" id="gamesTags">
+                    <span class="games-empty"><i class="fas fa-spinner fa-spin"></i> 加载中...</span>
+                </div>
+            </div>
+
             <!-- 状态筛选 -->
             <div class="filter-bar">
                 <button class="filter-btn active" data-filter="all">全部</button>
@@ -263,6 +442,21 @@
             </div>
         </div>
     </main>
+
+    <!-- 编辑可接单游戏弹窗 -->
+    <div class="modal-overlay" id="gamesModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeGamesModal()"><i class="fas fa-times"></i></button>
+            <h3 class="modal-title"><i class="fas fa-gamepad"></i> 选择可接单游戏</h3>
+            <div class="game-check-list" id="gameCheckList"></div>
+            <div class="modal-actions">
+                <button class="btn-cancel-modal" onclick="closeGamesModal()">取消</button>
+                <button class="btn-save-games" id="saveGamesBtn" onclick="saveGames()">
+                    <i class="fas fa-check"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container">
@@ -289,6 +483,9 @@
 
         let allOrders = [];
         let currentFilter = 'all';
+        let myGames = [];
+
+        const ALL_GAMES = ['原神','崩坏星穹铁道','绝区零','终末地','三角洲行动','王者荣耀','无畏契约'];
 
         (async () => {
             const user = await checkAuth();
@@ -302,6 +499,7 @@
             document.getElementById('empAvatar').textContent = user.username.charAt(0).toUpperCase();
             document.getElementById('empMeta').textContent = `工号: ${user.id || '未知'}`;
 
+            loadProfile();
             loadOrders();
 
             // 筛选
@@ -394,6 +592,76 @@
                 alert(res.data.error || '更新状态失败');
                 if (btn) btn.disabled = false;
             }
+        }
+
+        // === 可接单游戏管理 ===
+        async function loadProfile() {
+            const res = await apiFetch('/employee/profile');
+            if (res.ok && res.data) {
+                const profile = res.data.data || res.data;
+                myGames = Array.isArray(profile.games) ? profile.games : [];
+                renderGames();
+            }
+        }
+
+        function renderGames() {
+            const container = document.getElementById('gamesTags');
+            if (myGames.length === 0) {
+                container.innerHTML = '<span class="games-empty">尚未选择可接单游戏，点击「编辑」添加</span>';
+            } else {
+                container.innerHTML = myGames.map(g => '<span class="game-tag">' + g + '</span>').join('');
+            }
+        }
+
+        function openGamesModal() {
+            var list = document.getElementById('gameCheckList');
+            list.innerHTML = ALL_GAMES.map(function(g) {
+                var checked = myGames.includes(g);
+                return '<label class="game-check-item ' + (checked ? 'checked' : '') + '">' +
+                    '<input type="checkbox" value="' + g + '" ' + (checked ? 'checked' : '') + '>' +
+                    '<span class="game-check-box"></span>' +
+                    '<span class="game-check-label">' + g + '</span></label>';
+            }).join('');
+            list.querySelectorAll('.game-check-item').forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'INPUT') return;
+                    var cb = item.querySelector('input');
+                    cb.checked = !cb.checked;
+                    item.classList.toggle('checked', cb.checked);
+                });
+            });
+            document.getElementById('gamesModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGamesModal() {
+            document.getElementById('gamesModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('gamesModal').addEventListener('click', function(e) {
+            if (e.target === e.currentTarget) closeGamesModal();
+        });
+
+        async function saveGames() {
+            var btn = document.getElementById('saveGamesBtn');
+            var checked = document.querySelectorAll('#gameCheckList input:checked');
+            var games = Array.from(checked).map(function(cb) { return cb.value; });
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+            var res = await apiFetch('/employee/profile', {
+                method: 'PUT',
+                body: JSON.stringify({ games: games })
+            });
+            if (res.ok) {
+                myGames = games;
+                renderGames();
+                closeGamesModal();
+            } else {
+                alert(res.data?.error || '保存失败');
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> 保存';
         }
     </script>
 </body>

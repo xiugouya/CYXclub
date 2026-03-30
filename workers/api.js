@@ -152,6 +152,20 @@ export default {
         }
         const sm=ep.match(/^\/orders\/([a-z0-9_]+)\/status$/);
         if(sm&&method==="PUT"){const oid=sm[1];const b=await request.json();const valid=["pending","in_progress","completed","cancelled"];if(!b.status||!valid.includes(b.status))return err("invalid status");let order;if(session.role==="admin")order=await db.prepare("SELECT id FROM orders WHERE id=?").bind(oid).first();else order=await db.prepare("SELECT id FROM orders WHERE id=? AND worker_id=?").bind(oid,session.user_id).first();if(!order)return err("not found",404);await db.prepare("UPDATE orders SET status=?,updated_at=? WHERE id=?").bind(b.status,now(),oid).run();return ok({message:"updated"});}
+
+        // Employee profile: get/update own info
+        if(ep==="/profile"&&method==="GET"){
+          const w=await db.prepare("SELECT id,name,games,status,created_at FROM workers WHERE id=?").bind(session.user_id).first();
+          if(!w)return err("not found",404);
+          return ok(w);
+        }
+        if(ep==="/profile"&&method==="PUT"){
+          const b=await request.json();
+          if(!b.games||!Array.isArray(b.games))return err("games must be an array");
+          await db.prepare("UPDATE workers SET games=?,updated_at=? WHERE id=?").bind(JSON.stringify(b.games),now(),session.user_id).run();
+          return ok({games:b.games});
+        }
+
         return err("not found",404);
       }
 
