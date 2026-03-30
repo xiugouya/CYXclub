@@ -444,6 +444,8 @@
 
         let currentUser = null;
         let currentOrderId = null;
+        let allWorkers = [];
+        let allOrders = [];
 
         // 页面初始化
         (async () => {
@@ -478,6 +480,7 @@
                 return;
             }
             const orders = (res.data && res.data.data) || [];
+            allOrders = orders;
             if (orders.length === 0) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无订单</p></div>';
                 return;
@@ -497,27 +500,34 @@
                         ${o.worker_name ? `<span class="order-detail"><strong>打手:</strong> ${o.worker_name}</span>` : '<span class="order-detail"><strong>打手:</strong> 待选择</span>'}
                     </div>
                     ${o.user_note ? `<div class="order-notes">${o.user_note}</div>` : ''}
-                    ${!o.worker_id ? `<div style="margin-top:14px"><button class="btn-new-order" onclick="openOrderModal('${o.id}')"><i class="fas fa-user-cog"></i> 选择打手</button></div>` : ''}
+                    ${!o.worker_id ? `<div style="margin-top:14px"><button class="btn-new-order" onclick="openOrderModal('${o.id}','${o.game}')"><i class="fas fa-user-cog"></i> 选择打手</button></div>` : ''}
                 </div>
             `).join('');
         }
 
         async function loadEmployees() {
-            const select = document.getElementById('orderEmployee');
             const res = await apiFetch('/workers');
             if (res.ok) {
-                const workers = (res.data && res.data.data) || [];
-                workers.forEach(w => {
-                    const opt = document.createElement('option');
-                    opt.value = w.id;
-                    opt.textContent = w.name;
-                    select.appendChild(opt);
-                });
+                allWorkers = (res.data && res.data.data) || [];
             }
         }
 
-        function openOrderModal(orderId) {
+        function openOrderModal(orderId, game) {
             currentOrderId = orderId;
+            // Filter workers by game
+            const select = document.getElementById('orderEmployee');
+            select.innerHTML = '<option value="">请选择打手</option>';
+            const matched = allWorkers.filter(w => {
+                let games = w.games;
+                if (typeof games === 'string') { try { games = JSON.parse(games); } catch(e) { games = []; } }
+                return Array.isArray(games) && games.includes(game);
+            });
+            matched.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w.id;
+                opt.textContent = w.name;
+                select.appendChild(opt);
+            });
             document.getElementById('orderModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
