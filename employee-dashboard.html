@@ -526,7 +526,7 @@
         async function loadOrders() {
             const res = await apiFetch('/employee/orders');
             if (res.ok) {
-                allOrders = res.data || [];
+                allOrders = (res.data && res.data.data) || [];
                 renderOrders();
             } else {
                 document.getElementById('ordersList').innerHTML =
@@ -598,7 +598,7 @@
         async function loadProfile() {
             const res = await apiFetch('/employee/profile');
             if (res.ok && res.data) {
-                const profile = res.data.data || res.data;
+                const profile = (res.data && res.data.data) || res.data;
                 myGames = Array.isArray(profile.games) ? profile.games : [];
                 renderGames();
             }
