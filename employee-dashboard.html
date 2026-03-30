@@ -599,7 +599,9 @@
             const res = await apiFetch('/employee/profile');
             if (res.ok && res.data) {
                 const profile = (res.data && res.data.data) || res.data;
-                myGames = Array.isArray(profile.games) ? profile.games : [];
+                let games = profile.games;
+                if (typeof games === 'string') { try { games = JSON.parse(games); } catch(e) { games = []; } }
+                myGames = Array.isArray(games) ? games : [];
                 renderGames();
             }
         }
