@@ -79,12 +79,13 @@ export default {
         if(admin){const h=await hashPwd(password);if(h!==admin.password_hash)return err("wrong password, got:"+h.slice(0,10)+", want:"+admin.password_hash.slice(0,10),401);
         try{const t=await createSession(kv,admin.id,admin.username,"admin");const r=ok({user:{id:admin.id,username:admin.username,role:"admin"},token:t});r.headers.set("Set-Cookie",setCookie(t));return r;}catch(e){return err("session error: "+e.message,500);}}
         if(role==="employee"){const w=await db.prepare("SELECT * FROM workers WHERE name=? AND status='active'").bind(username).first();if(!w)return err("not found",401);const h=await hashPwd(password);if(h!==w.password_hash)return err("wrong password",401);const t=await createSession(kv,w.id,w.name,"employee");const r=ok({user:{id:w.id,username:w.name,role:"employee"},token:t});r.headers.set("Set-Cookie",setCookie(t));return r;}
-        const order=await db.prepare("SELECT * FROM orders WHERE order_no=?").bind(username).first();
+        const order=await db.prepare("SELECT o.*,u.username as user_name FROM orders o LEFT JOIN users u ON o.user_id=u.id WHERE o.order_no=?").bind(username).first();
         if(!order)return err("not found",401);if(!order.user_password)return err("no password",401);
         const h=await hashPwd(password);if(h!==order.user_password)return err("wrong password",401);
         const uid=order.user_id||order.id;
-        const t=await createSession(kv,uid,order.order_no,"user");
-        const r=ok({user:{id:uid,order_no:order.order_no,role:"user"},token:t});
+        const uname=order.user_name||order.order_no;
+        const t=await createSession(kv,uid,uname,"user");
+        const r=ok({user:{id:uid,username:uname,order_no:order.order_no,role:"user"},token:t});
         r.headers.set("Set-Cookie",setCookie(t));return r;
       }
 

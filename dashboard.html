@@ -457,9 +457,9 @@
             if (currentUser.role === 'employee') { window.location.href = 'employee-dashboard.html'; return; }
             if (currentUser.role === 'admin') { window.location.href = 'admin.html'; return; }
 
-            document.getElementById('userName').textContent = currentUser.order_no || currentUser.username;
-            document.getElementById('userAvatar').textContent = 'U';
-            document.getElementById('userMeta').textContent = `订单号: ${currentUser.order_no || currentUser.username}`;
+            document.getElementById('userName').textContent = currentUser.username || currentUser.order_no;
+            document.getElementById('userAvatar').textContent = (currentUser.username || 'U').charAt(0).toUpperCase();
+            document.getElementById('userMeta').textContent = `订单号: ${currentUser.order_no || ''}`;
 
             loadOrders();
             loadEmployees();
