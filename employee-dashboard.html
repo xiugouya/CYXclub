@@ -654,8 +654,7 @@
                 body: JSON.stringify({ games: games })
             });
             if (res.ok) {
-                myGames = games;
-                renderGames();
+                await loadProfile();
                 closeGamesModal();
             } else {
                 alert(res.data?.error || '保存失败');
