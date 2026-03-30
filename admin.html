@@ -424,6 +424,7 @@
                                 <option value="SJZX">三角洲</option>
                                 <option value="WZRY">王者荣耀</option>
                                 <option value="WWQY">无畏契约</option>
+                                <option value="AQTW">暗区突围</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -674,7 +675,7 @@
             if (!userId) { showToast('请选择用户', true); return; }
             if (!password) { showToast('请填写密码', true); return; }
 
-            const gameMap = {GEN:'通用',YSNB:'原神',XQTD:'崩铁',JQLX:'绝区零',ZMDX:'终末地',SJZX:'三角洲',WZRY:'王者荣耀',WWQY:'无畏契约'};
+            const gameMap = {GEN:'通用',YSNB:'原神',XQTD:'崩铁',JQLX:'绝区零',ZMDX:'终末地',SJZX:'三角洲',WZRY:'王者荣耀',WWQY:'无畏契约',AQTW:'暗区突围'};
             const body = {
                 game: gameMap[product] || '通用',
                 service_type: 1,
