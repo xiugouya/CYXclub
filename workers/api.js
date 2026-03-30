@@ -36,7 +36,7 @@ export default {
     if (method === "OPTIONS") {
       const o=request.headers.get("Origin")||"";
       const allowed=["https://cyxclub.top","https://admin.cyxclub.top","https://cyxclub.pages.dev","http://localhost:5173","http://localhost:3000"];
-      return new Response(null,{status:204,headers:{"Access-Control-Allow-Origin":allowed.includes(o)?o:"https://cyxclub.top","Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type","Access-Control-Allow-Credentials":"true","Access-Control-Max-Age":"86400"}});
+      return new Response(null,{status:204,headers:{"Access-Control-Allow-Origin":allowed.includes(o)?o:"https://cyxclub.top","Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization","Access-Control-Allow-Credentials":"true","Access-Control-Max-Age":"86400"}});
     }
     if (path === "/" || path === "") return j({service:"CYX Club API",status:"running"});
 
