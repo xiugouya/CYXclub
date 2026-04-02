@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱心节 — 由CYX俱乐部独家赞助</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.css">
+    <style>
+        :root {
+            --love-red: #e74c3c;
+            --love-pink: #ff6b81;
+            --love-dark: #1a1a2e;
+            --love-card: #16213e;
+            --love-border: #2a2a4a;
+            --love-text: #e0e0e0;
+            --love-gray: #888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--love-dark);
+            color: var(--love-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 浮动爱心背景 */
+        .hearts-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .hearts-bg span {
+            position: absolute;
+            bottom: -40px;
+            font-size: 20px;
+            opacity: 0.12;
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 0.12; }
+            50%  { opacity: 0.2; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* 顶部赞助条 */
+        .sponsor-bar {
+            background: linear-gradient(90deg, var(--love-red), var(--love-pink));
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+            z-index: 10;
+        }
+        .sponsor-bar a {
+            color: #fff;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            transition: opacity 0.3s;
+        }
+        .sponsor-bar a:hover { opacity: 0.8; }
+
+        /* 主标题区 */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 50px;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-icon {
+            font-size: 64px;
+            color: var(--love-pink);
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--love-pink), #fff, var(--love-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+        .hero p {
+            font-size: 16px;
+            color: var(--love-gray);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* 内容区 */
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 编辑区卡片 */
+        .section-card {
+            background: var(--love-card);
+            border: 1px solid var(--love-border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            transition: border-color 0.3s;
+        }
+        .section-card:hover { border-color: var(--love-pink); }
+
+        .section-card h2 {
+            font-size: 20px;
+            color: var(--love-pink);
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+        .section-card h2 i { margin-right: 8px; }
+
+        .section-card p,
+        .section-card ul {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--love-text);
+        }
+        .section-card ul {
+            padding-left: 20px;
+        }
+        .section-card ul li {
+            margin-bottom: 8px;
+        }
+        .section-card ul li::marker {
+            color: var(--love-pink);
+        }
+
+        /* 可编辑提示 */
+        .editable-hint {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 4px 10px;
+            background: rgba(231,76,60,0.15);
+            color: var(--love-pink);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* 底部 */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid var(--love-border);
+            position: relative;
+            z-index: 1;
+        }
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--love-pink);
+            margin-bottom: 8px;
+        }
+        .footer p {
+            font-size: 13px;
+            color: var(--love-gray);
+        }
+        .footer a {
+            color: var(--love-pink);
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+        .footer a:hover { opacity: 0.7; }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 30px; }
+            .hero { padding: 60px 16px 30px; }
+            .section-card { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 浮动爱心 -->
+    <div class="hearts-bg" id="heartsBg"></div>
+
+    <!-- 赞助条 -->
+    <div class="sponsor-bar">
+        <i class="fas fa-heart"></i> 本网站由 <a href="https://cyxclub.top" target="_blank">CYX俱乐部</a> 独家赞助
+    </div>
+
+    <!-- 主标题 -->
+    <section class="hero">
+        <div class="hero-icon"><i class="fas fa-heart"></i></div>
+        <h1>爱心节</h1>
+        <p>用爱点亮校园，用行动温暖人心</p>
+    </section>
+
+    <!-- 内容区 —— 以下内容可自行编辑 -->
+    <div class="content">
+
+        <!-- 活动介绍 -->
+        <div class="section-card">
+            <h2><i class="fas fa-info-circle"></i> 活动介绍</h2>
+            <p>
+                <!-- ✏️ 在这里填写你们班的爱心节活动介绍 -->
+                在这里写下你们班级爱心节的活动介绍内容……
+            </p>
+            <span class="editable-hint">✏️ 编辑此区域内容</span>
+        </div>
+
+        <!-- 活动安排 -->
+        <div class="section-card">
+            <h2><i class="fas fa-calendar-alt"></i> 活动安排</h2>
+            <ul>
+                <!-- ✏️ 在这里填写活动时间和安排 -->
+                <li>在这里添加活动安排……</li>
+                <li>在这里添加活动安排……</li>
+                <li>在这里添加活动安排……</li>
+            </ul>
+            <span class="editable-hint">✏️ 编辑此区域内容</span>
+        </div>
+
+        <!-- 爱心项目 -->
+        <div class="section-card">
+            <h2><i class="fas fa-hand-holding-heart"></i> 爱心项目</h2>
+            <p>
+                <!-- ✏️ 在这里填写爱心义卖/捐赠/志愿服务等项目 -->
+                在这里写下你们班的爱心项目内容……
+            </p>
+            <span class="editable-hint">✏️ 编辑此区域内容</span>
+        </div>
+
+        <!-- 联系方式 -->
+        <div class="section-card">
+            <h2><i class="fas fa-envelope"></i> 联系我们</h2>
+            <p>
+                <!-- ✏️ 在这里填写联系方式 -->
+                在这里写下联系方式……
+            </p>
+            <span class="editable-hint">✏️ 编辑此区域内容</span>
+        </div>
+
+    </div>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <div class="footer-logo">CYX 俱乐部</div>
+        <p>
+            <a href="https://cyxclub.top"><i class="fas fa-external-link-alt"></i> 访问CYX俱乐部官网</a>
+        </p>
+        <p style="margin-top: 10px;">© 2026 CYX俱乐部. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 生成浮动爱心
+        const bg = document.getElementById('heartsBg');
+        const hearts = ['❤','💕','💗','💖','🩷'];
+        for (let i = 0; i < 25; i++) {
+            const s = document.createElement('span');
+            s.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+            s.style.left = Math.random() * 100 + '%';
+            s.style.fontSize = (14 + Math.random() * 18) + 'px';
+            s.style.animationDuration = (8 + Math.random() * 12) + 's';
+            s.style.animationDelay = Math.random() * 10 + 's';
+            bg.appendChild(s);
+        }
+    </script>
+
+</body>
+</html>
