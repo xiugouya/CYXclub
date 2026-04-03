@@ -11,8 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: cloudflare/wrangler-action@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ada764323a1c0a3f66182d19aefc4e41
-          command: pages deploy . --project-name=cyxclub --prod
+          node-version: 20
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ada764323a1c0a3f66182d19aefc4e41
+        run: |
+          echo "Deploying cyxclub to Cloudflare Pages..."
+          npx wrangler pages deploy . --project-name=cyxclub --branch=main
