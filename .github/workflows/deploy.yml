@@ -15,4 +15,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ada764323a1c0a3f66182d19aefc4e41
-          command: pages deploy . --project-name=cyxclub
+          command: pages deploy . --project-name=cyxclub --prod
