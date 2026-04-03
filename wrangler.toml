@@ -1,2 +1,16 @@
-name = "cyxclub-pages"
-pages_build_output_dir = "."
+name = "cyxclub-api"
+main = "workers/api.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "cyxclub_db"
+database_name = "cyx-club-db"
+database_id = "b126879d-a29e-4521-85f9-7371cb49867c"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "f579ac283a4e4848b03de35d479ebc5b"
+
+[vars]
+ENVIRONMENT = "production"
+ALLOWED_ORIGINS = "https://cyxclub.top,https://cyxclub.pages.dev,https://cyx-club.pages.dev,http://localhost:5173,http://localhost:3000"
